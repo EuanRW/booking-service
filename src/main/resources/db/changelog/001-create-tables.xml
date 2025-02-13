@@ -1,0 +1,9 @@
+<databaseChangeLog>
+    <changeSet id="1" author="you">
+        <createTable tableName="lesson">
+            <column name="id" type="bigint" autoIncrement="true" primaryKey="true"/>
+            <column name="title" type="varchar(255)"/>
+            <column name="description" type="text"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
