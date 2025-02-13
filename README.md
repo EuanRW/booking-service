@@ -6,14 +6,14 @@ A straightforward app for scheduling lessons.
 
 ### Backend:
 
-Framework: Spring Boot (Spring MVC, Spring Data JPA)
-Database: PostgreSQL
-ORM: Hibernate (via JPA)
-Security: Spring Security (JWT for authentication)
-API Documentation: Swagger/OpenAPI
-Database Migrations: Liquibase
-Build Tool: Maven
-Testing: JUnit (backend)
+- Framework: Spring Boot (Spring MVC, Spring Data JPA)
+- Database: PostgreSQL
+- ORM: Hibernate (via JPA)
+- Security: Spring Security (JWT for authentication)
+- API Documentation: Swagger/OpenAPI
+- Database Migrations: Liquibase
+- Build Tool: Maven
+- Testing: JUnit (backend)
 
 ### DevOps & Deployment:
 
