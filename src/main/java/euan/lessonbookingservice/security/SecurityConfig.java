@@ -20,7 +20,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Allow public access to auth endpoints
-                        .requestMatchers("/api/auth/**", "/login", "/register").permitAll()
+                        .requestMatchers("/**").permitAll()
                         // Require authentication for all other endpoints
                         .anyRequest().authenticated()
                 )

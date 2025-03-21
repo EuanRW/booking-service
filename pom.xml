@@ -92,6 +92,18 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
+                    <!-- Database connection details -->
+                    <url>jdbc:postgresql://localhost:5432/lesson_booking</url>
+                    <username>admin</username>
+                    <password>admin</password>
+                    <driver>org.postgresql.Driver</driver>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
