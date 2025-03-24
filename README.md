@@ -1,6 +1,6 @@
 # lesson-booking-service
 
-A straightforward app for scheduling lessons. 
+A straightforward app for scheduling lessons.
 
 ## Tech stack
 
@@ -25,3 +25,20 @@ A straightforward app for scheduling lessons.
 ### Miscellaneous
 
 - Payment Integration: Stripe/PayPal (if needed for paid lessons)
+
+## Configuration
+
+Once your project environment has been established in IntelliJ IDEA, build the `lesson-booking-service` run:
+
+```shell
+  mvn clean package
+```
+
+Now, build and run all the services using Docker Compose:
+
+```shell
+  docker-compose up --build
+```
+
+The service is now accessible on port 8080.
+

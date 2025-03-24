@@ -27,6 +27,22 @@ services:
     depends_on:
       - postgres
 
+  lesson-booking-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lesson-booking-service
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lesson_booking
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+
 volumes:
   pg_data:
   pgadmin_data:
