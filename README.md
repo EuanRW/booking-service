@@ -37,7 +37,7 @@ Once your project environment has been established in IntelliJ IDEA, build the `
 Now, build and run all the services using Docker Compose:
 
 ```shell
-  docker-compose up --build
+  docker compose up --build
 ```
 
 The service is now accessible on port 8080.
