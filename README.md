@@ -42,3 +42,12 @@ Now, build and run all the services using Docker Compose:
 
 The service is now accessible on port 8080.
 
+## Editing liquibase 
+
+```shell
+  mvn liquibase:clearCheckSums
+```
+```shell
+  mvn spring-boot:run
+```
+

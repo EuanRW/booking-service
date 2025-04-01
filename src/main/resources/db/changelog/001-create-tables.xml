@@ -34,6 +34,18 @@
             <column name="teacher_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_lessons_teacher" references="users(id)"/>
             </column>
+            <column name="scheduled_time" type="TIMESTAMP"/>
+        </createTable>
+        <createTable tableName="bookings">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="lesson_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_bookings_lesson" references="lessons(id)"/>
+            </column>
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_bookings_student" references="users(id)"/>
+            </column>
         </createTable>
     </changeSet>
 

@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
+@Table(name = "bookings")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +18,4 @@ public class Booking {
 
     @ManyToOne
     private User student;
-
-    private LocalDateTime bookingTime;
 }
