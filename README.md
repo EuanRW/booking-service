@@ -37,6 +37,14 @@ Once your project environment has been established in IntelliJ IDEA, build the `
 Now, build and run all the services using Docker Compose:
 
 ```shell
+  mvn spring-boot:run
+```
+
+## Running the supporting services
+
+Postgres, PGAdmin etc.
+
+```shell
   docker compose up --build
 ```
 
@@ -44,10 +52,10 @@ The service is now accessible on port 8080.
 
 ## Editing liquibase 
 
+Sometimes when changing entities we're getting liquibase errors. In this case, try deleting the changelog DB table and running the below command.
+
 ```shell
   mvn liquibase:clearCheckSums
 ```
-```shell
-  mvn spring-boot:run
-```
+
 
