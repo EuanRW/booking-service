@@ -15,10 +15,9 @@ public class UserDto {
     @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Username is required")
+    @NotBlank(message = "Password is required")
     private String password;
 
-    @NotBlank(message = "Role is required")
-    @Pattern(regexp = "STUDENT|TEACHER", message = "Role must be either STUDENT or TEACHER")
+    @Pattern(regexp = "STUDENT|TEACHER|ADMIN", message = "Role must be either STUDENT, TEACHER, or ADMIN")
     private String role;
 }

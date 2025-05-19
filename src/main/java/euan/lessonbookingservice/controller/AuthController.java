@@ -53,11 +53,11 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        // Create new user
+        // Create new user with STUDENT role by default
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("USER");
+        user.setRole("STUDENT");
 
         userRepository.save(user);
 

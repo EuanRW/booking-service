@@ -39,6 +39,8 @@ public class UserService {
         }
 
         User user = convertToEntity(userDto);
+        // Always set the role to STUDENT for new users, regardless of what was provided
+        user.setRole("STUDENT");
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
@@ -71,7 +73,8 @@ public class UserService {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
-        userDto.setPassword(user.getPassword());
+        // Don't include the password in the DTO when returning to client
+        userDto.setPassword(null);
         userDto.setRole(user.getRole());
         return userDto;
     }
@@ -81,7 +84,7 @@ public class UserService {
         user.setId(userDto.getId());
         user.setUsername(userDto.getUsername());
         user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
+        // Role will be set in the createUser method
         return user;
     }
 }
