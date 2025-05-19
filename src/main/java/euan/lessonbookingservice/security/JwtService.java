@@ -3,7 +3,11 @@ package euan.lessonbookingservice.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +18,19 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // TODO: Use a secure way to store your secret key in production (e.g., in environment variables or external config)
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final SecretKey secretKey;
+
+    @Autowired
+    public JwtService(Environment env) {
+        String secretKeyString = env.getProperty("jwt.secret");
+        if (secretKeyString == null || secretKeyString.isEmpty()) {
+            throw new IllegalStateException("JWT secret key is not configured. Set the 'jwt.secret' property in your configuration.");
+        }
+
+        // Convert Base64 encoded string to SecretKey
+        byte[] keyBytes = Decoders.BASE64.decode(secretKeyString);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(userDetails.getUsername());
