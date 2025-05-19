@@ -28,6 +28,12 @@ A straightforward app for scheduling lessons.
 
 ## Configuration
 
+Add a .env with a `JWT_SECRET` env var generated with:
+
+```bash
+  openssl rand -base64 64
+```
+
 Once your project environment has been established in IntelliJ IDEA, build the `lesson-booking-service` run:
 
 ```shell
