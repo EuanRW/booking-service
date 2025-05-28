@@ -18,13 +18,8 @@ A straightforward app for scheduling lessons.
 ### DevOps & Deployment:
 
 - Containerization: Docker
-- CI/CD: GitHub Actions or Jenkins
 - Deployment: AWS (EC2)
 - Monitoring: Prometheus + Grafana
-
-### Miscellaneous
-
-- Payment Integration: Stripe/PayPal (if needed for paid lessons)
 
 ## Configuration
 
