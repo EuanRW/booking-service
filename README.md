@@ -51,9 +51,10 @@ Postgres, PGAdmin etc.
 
 The service is now accessible on port 8080.
 
-## Editing liquibase 
+## Editing liquibase
 
-Sometimes when changing entities we're getting liquibase errors. In this case, try deleting the changelog DB table and running the below command.
+Sometimes when changing entities we're getting liquibase errors. In this case, try deleting the changelog DB table and
+running the below command.
 
 ```shell
   mvn liquibase:clearCheckSums
