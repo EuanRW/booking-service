@@ -17,20 +17,17 @@ public class LessonController {
         this.lessonService = lessonService;
     }
 
-    // Create a new lesson
     @PostMapping
     public ResponseEntity<LessonDto> createLesson(@RequestBody LessonDto lessonDto) {
         LessonDto createdLesson = lessonService.createLesson(lessonDto);
         return ResponseEntity.ok(createdLesson);
     }
 
-    // Get all lessons
     @GetMapping
     public ResponseEntity<List<LessonDto>> getAllLessons() {
         return ResponseEntity.ok(lessonService.getAllLessons());
     }
 
-    // Get lesson by ID
     @GetMapping("/{id}")
     public ResponseEntity<LessonDto> getLessonById(@PathVariable Long id) {
         return lessonService.getLessonById(id)
@@ -38,7 +35,6 @@ public class LessonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update lesson
     @PutMapping("/{id}")
     public ResponseEntity<LessonDto> updateLesson(@PathVariable Long id, @RequestBody LessonDto lessonDto) {
         return lessonService.updateLesson(id, lessonDto)
@@ -46,7 +42,6 @@ public class LessonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Delete lesson
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLesson(@PathVariable Long id) {
         if (lessonService.deleteLesson(id)) {
