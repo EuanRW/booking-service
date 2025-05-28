@@ -3,6 +3,7 @@ package euan.lessonbookingservice.controller;
 import euan.lessonbookingservice.dto.LessonDto;
 import euan.lessonbookingservice.service.LessonService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class LessonController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<LessonDto> createLesson(@RequestBody LessonDto lessonDto) {
         LessonDto createdLesson = lessonService.createLesson(lessonDto);
         return ResponseEntity.ok(createdLesson);
@@ -36,6 +38,7 @@ public class LessonController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<LessonDto> updateLesson(@PathVariable Long id, @RequestBody LessonDto lessonDto) {
         return lessonService.updateLesson(id, lessonDto)
                 .map(ResponseEntity::ok)
@@ -43,6 +46,7 @@ public class LessonController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<Void> deleteLesson(@PathVariable Long id) {
         if (lessonService.deleteLesson(id)) {
             return ResponseEntity.noContent().build();
