@@ -3,6 +3,14 @@ package euan.lessonbookingservice.controller;
 import euan.lessonbookingservice.dto.BookingDto;
 import euan.lessonbookingservice.service.BookingService;
 import euan.lessonbookingservice.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +21,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/bookings")
+@Tag(name = "Bookings", description = "Booking management API")
+@SecurityRequirement(name = "basicAuth")
 public class BookingController {
     private final BookingService bookingService;
     private final UserService userService;
@@ -23,7 +33,25 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<BookingDto> createBooking(@RequestBody BookingDto bookingDto) {
+    @Operation(
+            summary = "Create a new booking",
+            description = "Students can only create bookings for themselves. Admins can create bookings for any student."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Booking created successfully",
+                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot create booking for another student",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content)
+    })
+    public ResponseEntity<BookingDto> createBooking(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Booking details",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = BookingDto.class))
+            )
+            @RequestBody BookingDto bookingDto) {
         Long currentUserId = getCurrentUserId();
 
         // Ensure students can only create bookings for themselves
@@ -36,6 +64,14 @@ public class BookingController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Get all bookings",
+            description = "Students see only their own bookings. Admins see all bookings."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved bookings",
+                    content = @Content(schema = @Schema(implementation = BookingDto.class)))
+    })
     public ResponseEntity<List<BookingDto>> getAllBookings() {
         Long currentUserId = getCurrentUserId();
 
@@ -49,7 +85,21 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDto> getBookingById(@PathVariable Long id) {
+    @Operation(
+            summary = "Get booking by ID",
+            description = "Students can only view their own bookings. Admins can view any booking."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Booking found",
+                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+            @ApiResponse(responseCode = "404", description = "Booking not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot access this booking",
+                    content = @Content)
+    })
+    public ResponseEntity<BookingDto> getBookingById(
+            @Parameter(description = "Booking ID", required = true)
+            @PathVariable Long id) {
         Optional<BookingDto> booking = bookingService.getBookingById(id);
 
         if (booking.isEmpty()) {
@@ -65,7 +115,27 @@ public class BookingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookingDto> updateBooking(@PathVariable Long id, @RequestBody BookingDto bookingDto) {
+    @Operation(
+            summary = "Update booking",
+            description = "Students can only update their own bookings. Admins can update any booking."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Booking updated successfully",
+                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+            @ApiResponse(responseCode = "404", description = "Booking not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot update this booking",
+                    content = @Content)
+    })
+    public ResponseEntity<BookingDto> updateBooking(
+            @Parameter(description = "Booking ID", required = true)
+            @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Updated booking details",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = BookingDto.class))
+            )
+            @RequestBody BookingDto bookingDto) {
         // First check if booking exists and user has permission
         Optional<BookingDto> existingBooking = bookingService.getBookingById(id);
         if (existingBooking.isEmpty()) {
@@ -87,7 +157,21 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+    @Operation(
+            summary = "Delete booking",
+            description = "Students can only delete their own bookings. Admins can delete any booking."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Booking deleted successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Booking not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot delete this booking",
+                    content = @Content)
+    })
+    public ResponseEntity<Void> deleteBooking(
+            @Parameter(description = "Booking ID", required = true)
+            @PathVariable Long id) {
         // First check if booking exists and user has permission
         Optional<BookingDto> existingBooking = bookingService.getBookingById(id);
         if (existingBooking.isEmpty()) {
