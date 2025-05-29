@@ -29,26 +29,23 @@ Add a .env with a `JWT_SECRET` env var generated with:
   openssl rand -base64 64
 ```
 
-Once your project environment has been established in IntelliJ IDEA, build the `lesson-booking-service` run:
-
-```shell
-  mvn clean package
-```
-
-Now, build and run all the services using Docker Compose:
-
-```shell
-  mvn spring-boot:run
-```
-
-## Running the supporting services
-
-Postgres, PGAdmin etc.
+Run the supporting services (Postgres, PGAdmin etc):
 
 ```shell
   docker compose up --build
 ```
 
+Once your project environment has been established in IntelliJ IDEA, build the `lesson-booking-service`. Run:
+
+```shell
+  mvn clean package
+```
+
+Now, run the service:
+
+```shell
+  mvn spring-boot:run
+```
 The service is now accessible on port 8080.
 
 ## Editing liquibase
