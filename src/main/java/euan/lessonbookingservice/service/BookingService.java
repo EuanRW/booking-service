@@ -38,6 +38,14 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+    // New method to get bookings by student ID
+    public List<BookingDto> getBookingsByStudentId(Long studentId) {
+        return bookingRepository.findByStudentId(studentId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public Optional<BookingDto> getBookingById(Long id) {
         return bookingRepository.findById(id)
                 .map(this::convertToDto);

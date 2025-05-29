@@ -33,6 +33,12 @@ public class UserService {
         return convertToDto(user);
     }
 
+    public Long getUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+    }
+
     public UserDto createUser(UserDto userDto) {
         if (userRepository.existsByUsername(userDto.getUsername())) {
             throw new UsernameAlreadyExistsException("Username already exists: " + userDto.getUsername());
