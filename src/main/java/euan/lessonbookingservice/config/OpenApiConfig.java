@@ -1,7 +1,6 @@
 package euan.lessonbookingservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -20,18 +19,16 @@ public class OpenApiConfig {
                         .title("Lesson Booking Service API")
                         .version("1.0.0")
                         .description("API for managing lesson bookings, users, and lessons")
-                        .contact(new Contact()
-                                .name("Euan")
-                                .email("your.email@example.com"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes("basicAuth",
+                        .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")
-                                        .description("Basic Authentication")));
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("JWT Bearer token authentication")));
     }
 }

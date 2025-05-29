@@ -1,6 +1,7 @@
 package euan.lessonbookingservice.controller;
 
-import euan.lessonbookingservice.dto.BookingDto;
+import euan.lessonbookingservice.dto.request.BookingRequest;
+import euan.lessonbookingservice.dto.response.BookingResponse;
 import euan.lessonbookingservice.service.BookingService;
 import euan.lessonbookingservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +24,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/bookings")
 @Tag(name = "Bookings", description = "Booking management API")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class BookingController {
     private final BookingService bookingService;
     private final UserService userService;
@@ -38,29 +40,29 @@ public class BookingController {
             description = "Students can only create bookings for themselves. Admins can create bookings for any student."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Booking created successfully",
-                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+            @ApiResponse(responseCode = "201", description = "Booking created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingResponse.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden - Cannot create booking for another student",
                     content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid input data",
                     content = @Content)
     })
-    public ResponseEntity<BookingDto> createBooking(
+    public ResponseEntity<BookingResponse> createBooking(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Booking details",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = BookingDto.class))
+                    content = @Content(schema = @Schema(implementation = BookingRequest.class))
             )
-            @RequestBody BookingDto bookingDto) {
+            @Valid @RequestBody BookingRequest bookingRequest) {
         Long currentUserId = getCurrentUserId();
 
         // Ensure students can only create bookings for themselves
-        if (!isAdmin() && !bookingDto.getStudentId().equals(currentUserId)) {
+        if (!isAdmin() && !bookingRequest.getStudentId().equals(currentUserId)) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 
-        BookingDto createdBooking = bookingService.createBooking(bookingDto);
-        return ResponseEntity.ok(createdBooking);
+        BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
+        return ResponseEntity.status(201).body(createdBooking);
     }
 
     @GetMapping
@@ -70,9 +72,9 @@ public class BookingController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved bookings",
-                    content = @Content(schema = @Schema(implementation = BookingDto.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingResponse.class)))
     })
-    public ResponseEntity<List<BookingDto>> getAllBookings() {
+    public ResponseEntity<List<BookingResponse>> getAllBookings() {
         Long currentUserId = getCurrentUserId();
 
         if (isAdmin()) {
@@ -91,16 +93,16 @@ public class BookingController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Booking found",
-                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingResponse.class))),
             @ApiResponse(responseCode = "404", description = "Booking not found",
                     content = @Content),
             @ApiResponse(responseCode = "403", description = "Forbidden - Cannot access this booking",
                     content = @Content)
     })
-    public ResponseEntity<BookingDto> getBookingById(
+    public ResponseEntity<BookingResponse> getBookingById(
             @Parameter(description = "Booking ID", required = true)
             @PathVariable Long id) {
-        Optional<BookingDto> booking = bookingService.getBookingById(id);
+        Optional<BookingResponse> booking = bookingService.getBookingById(id);
 
         if (booking.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -121,23 +123,23 @@ public class BookingController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Booking updated successfully",
-                    content = @Content(schema = @Schema(implementation = BookingDto.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingResponse.class))),
             @ApiResponse(responseCode = "404", description = "Booking not found",
                     content = @Content),
             @ApiResponse(responseCode = "403", description = "Forbidden - Cannot update this booking",
                     content = @Content)
     })
-    public ResponseEntity<BookingDto> updateBooking(
+    public ResponseEntity<BookingResponse> updateBooking(
             @Parameter(description = "Booking ID", required = true)
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Updated booking details",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = BookingDto.class))
+                    content = @Content(schema = @Schema(implementation = BookingRequest.class))
             )
-            @RequestBody BookingDto bookingDto) {
+            @Valid @RequestBody BookingRequest bookingRequest) {
         // First check if booking exists and user has permission
-        Optional<BookingDto> existingBooking = bookingService.getBookingById(id);
+        Optional<BookingResponse> existingBooking = bookingService.getBookingById(id);
         if (existingBooking.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -148,11 +150,11 @@ public class BookingController {
 
         // Ensure students can't change the studentId to someone else
         Long currentUserId = getCurrentUserId();
-        if (!isAdmin() && !bookingDto.getStudentId().equals(currentUserId)) {
+        if (!isAdmin() && !bookingRequest.getStudentId().equals(currentUserId)) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 
-        Optional<BookingDto> updatedBooking = bookingService.updateBooking(id, bookingDto);
+        Optional<BookingResponse> updatedBooking = bookingService.updateBooking(id, bookingRequest);
         return updatedBooking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -173,7 +175,7 @@ public class BookingController {
             @Parameter(description = "Booking ID", required = true)
             @PathVariable Long id) {
         // First check if booking exists and user has permission
-        Optional<BookingDto> existingBooking = bookingService.getBookingById(id);
+        Optional<BookingResponse> existingBooking = bookingService.getBookingById(id);
         if (existingBooking.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -200,7 +202,7 @@ public class BookingController {
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    private boolean hasPermissionToAccessBooking(BookingDto booking) {
+    private boolean hasPermissionToAccessBooking(BookingResponse booking) {
         if (isAdmin()) {
             return true; // Admins can access all bookings
         }

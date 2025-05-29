@@ -1,6 +1,7 @@
 package euan.lessonbookingservice.service;
 
-import euan.lessonbookingservice.dto.BookingDto;
+import euan.lessonbookingservice.dto.request.BookingRequest;
+import euan.lessonbookingservice.dto.response.BookingResponse;
 import euan.lessonbookingservice.entity.Booking;
 import euan.lessonbookingservice.entity.Lesson;
 import euan.lessonbookingservice.entity.User;
@@ -25,13 +26,13 @@ public class BookingService {
         this.userRepository = userRepository;
     }
 
-    public BookingDto createBooking(BookingDto bookingDto) {
-        Booking booking = convertToEntity(bookingDto);
+    public BookingResponse createBooking(BookingRequest bookingRequest) {
+        Booking booking = convertToEntity(bookingRequest);
         Booking savedBooking = bookingRepository.save(booking);
         return convertToDto(savedBooking);
     }
 
-    public List<BookingDto> getAllBookings() {
+    public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAll()
                 .stream()
                 .map(this::convertToDto)
@@ -39,24 +40,24 @@ public class BookingService {
     }
 
     // New method to get bookings by student ID
-    public List<BookingDto> getBookingsByStudentId(Long studentId) {
+    public List<BookingResponse> getBookingsByStudentId(Long studentId) {
         return bookingRepository.findByStudentId(studentId)
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    public Optional<BookingDto> getBookingById(Long id) {
+    public Optional<BookingResponse> getBookingById(Long id) {
         return bookingRepository.findById(id)
                 .map(this::convertToDto);
     }
 
-    public Optional<BookingDto> updateBooking(Long id, BookingDto bookingDto) {
+    public Optional<BookingResponse> updateBooking(Long id, BookingRequest bookingRequest) {
         return bookingRepository.findById(id).map(existingBooking -> {
-            Optional<Lesson> lessonOpt = lessonRepository.findById(bookingDto.getLessonId());
+            Optional<Lesson> lessonOpt = lessonRepository.findById(bookingRequest.getLessonId());
             lessonOpt.ifPresent(existingBooking::setLesson);
 
-            Optional<User> studentOpt = userRepository.findById(bookingDto.getStudentId());
+            Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
             studentOpt.ifPresent(existingBooking::setStudent);
 
             Booking updatedBooking = bookingRepository.save(existingBooking);
@@ -72,30 +73,29 @@ public class BookingService {
         return false;
     }
 
-    private BookingDto convertToDto(Booking booking) {
-        BookingDto dto = new BookingDto();
+    private BookingResponse convertToDto(Booking booking) {
+        BookingResponse dto = new BookingResponse();
         dto.setId(booking.getId());
         dto.setLessonId(booking.getLesson().getId());
         dto.setStudentId(booking.getStudent().getId());
         return dto;
     }
 
-    private Booking convertToEntity(BookingDto dto) {
+    private Booking convertToEntity(BookingRequest bookingRequest) {
         Booking booking = new Booking();
-        booking.setId(dto.getId());
 
-        Optional<Lesson> lessonOpt = lessonRepository.findById(dto.getLessonId());
+        Optional<Lesson> lessonOpt = lessonRepository.findById(bookingRequest.getLessonId());
         if (lessonOpt.isPresent()) {
             booking.setLesson(lessonOpt.get());
         } else {
-            throw new IllegalArgumentException("Lesson with ID " + dto.getLessonId() + " not found.");
+            throw new IllegalArgumentException("Lesson with ID " + bookingRequest.getLessonId() + " not found.");
         }
 
-        Optional<User> studentOpt = userRepository.findById(dto.getStudentId());
+        Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
         if (studentOpt.isPresent()) {
             booking.setStudent(studentOpt.get());
         } else {
-            throw new IllegalArgumentException("Student with ID " + dto.getStudentId() + " not found.");
+            throw new IllegalArgumentException("Student with ID " + bookingRequest.getStudentId() + " not found.");
         }
 
         return booking;

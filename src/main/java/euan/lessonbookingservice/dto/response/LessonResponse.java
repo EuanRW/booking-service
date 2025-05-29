@@ -1,10 +1,10 @@
-package euan.lessonbookingservice.dto;
+package euan.lessonbookingservice.dto.response;
 
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class LessonDto {
+public class LessonResponse {
     private Long id;
     private String title;
     private String description;

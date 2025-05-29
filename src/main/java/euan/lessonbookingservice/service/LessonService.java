@@ -1,6 +1,7 @@
 package euan.lessonbookingservice.service;
 
-import euan.lessonbookingservice.dto.LessonDto;
+import euan.lessonbookingservice.dto.request.LessonRequest;
+import euan.lessonbookingservice.dto.response.LessonResponse;
 import euan.lessonbookingservice.entity.Lesson;
 import euan.lessonbookingservice.entity.User;
 import euan.lessonbookingservice.repository.LessonRepository;
@@ -21,30 +22,31 @@ public class LessonService {
         this.userRepository = userRepository;
     }
 
-    public LessonDto createLesson(LessonDto lessonDto) {
-        Lesson lesson = convertToEntity(lessonDto);
+    public LessonResponse createLesson(LessonRequest lessonRequest) {
+        Lesson lesson = convertToEntity(lessonRequest);
         Lesson savedLesson = lessonRepository.save(lesson);
         return convertToDto(savedLesson);
     }
 
-    public List<LessonDto> getAllLessons() {
+    public List<LessonResponse> getAllLessons() {
         return lessonRepository.findAll()
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    public Optional<LessonDto> getLessonById(Long id) {
+    public Optional<LessonResponse> getLessonById(Long id) {
         return lessonRepository.findById(id)
                 .map(this::convertToDto);
     }
 
-    public Optional<LessonDto> updateLesson(Long id, LessonDto lessonDto) {
+    public Optional<LessonResponse> updateLesson(Long id, LessonRequest lessonRequest) {
         return lessonRepository.findById(id).map(existingLesson -> {
-            existingLesson.setTitle(lessonDto.getTitle());
-            existingLesson.setDescription(lessonDto.getDescription());
+            existingLesson.setTitle(lessonRequest.getTitle());
+            existingLesson.setDescription(lessonRequest.getDescription());
+            existingLesson.setScheduledTime(lessonRequest.getScheduledTime());
 
-            Optional<User> teacherOpt = userRepository.findById(lessonDto.getTeacherId());
+            Optional<User> teacherOpt = userRepository.findById(lessonRequest.getTeacherId());
             teacherOpt.ifPresent(existingLesson::setTeacher);
 
             Lesson updatedLesson = lessonRepository.save(existingLesson);
@@ -60,8 +62,8 @@ public class LessonService {
         return false;
     }
 
-    private LessonDto convertToDto(Lesson lesson) {
-        LessonDto dto = new LessonDto();
+    private LessonResponse convertToDto(Lesson lesson) {
+        LessonResponse dto = new LessonResponse();
         dto.setId(lesson.getId());
         dto.setTitle(lesson.getTitle());
         dto.setDescription(lesson.getDescription());
@@ -69,17 +71,17 @@ public class LessonService {
         return dto;
     }
 
-    private Lesson convertToEntity(LessonDto dto) {
+    private Lesson convertToEntity(LessonRequest lessonRequest) {
         Lesson lesson = new Lesson();
-        lesson.setId(dto.getId());
-        lesson.setTitle(dto.getTitle());
-        lesson.setDescription(dto.getDescription());
+        lesson.setTitle(lessonRequest.getTitle());
+        lesson.setDescription(lessonRequest.getDescription());
+        lesson.setScheduledTime(lessonRequest.getScheduledTime());
 
-        Optional<User> teacherOpt = userRepository.findById(dto.getTeacherId());
+        Optional<User> teacherOpt = userRepository.findById(lessonRequest.getTeacherId());
         if (teacherOpt.isPresent()) {
             lesson.setTeacher(teacherOpt.get());
         } else {
-            throw new IllegalArgumentException("Teacher with ID " + dto.getTeacherId() + " not found.");
+            throw new IllegalArgumentException("Teacher with ID " + lessonRequest.getTeacherId() + " not found.");
         }
 
         return lesson;

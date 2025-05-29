@@ -1,6 +1,7 @@
 package euan.lessonbookingservice.service;
 
-import euan.lessonbookingservice.dto.UserDto;
+import euan.lessonbookingservice.dto.request.UserUpdateRequest;
+import euan.lessonbookingservice.dto.response.UserResponse;
 import euan.lessonbookingservice.entity.User;
 import euan.lessonbookingservice.exception.ResourceNotFoundException;
 import euan.lessonbookingservice.exception.UsernameAlreadyExistsException;
@@ -21,16 +22,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<UserDto> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::convertToDto)
+                .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        return convertToDto(user);
+        return convertToResponseDto(user);
     }
 
     public Long getUserIdByUsername(String username) {
@@ -39,33 +40,21 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
-    public UserDto createUser(UserDto userDto) {
-        if (userRepository.existsByUsername(userDto.getUsername())) {
-            throw new UsernameAlreadyExistsException("Username already exists: " + userDto.getUsername());
-        }
-
-        User user = convertToEntity(userDto);
-        // Always set the role to STUDENT for new users, regardless of what was provided
-        user.setRole("STUDENT");
-        User savedUser = userRepository.save(user);
-        return convertToDto(savedUser);
-    }
-
-    public UserDto updateUser(Long id, UserDto userDto) {
+    public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         // Check if username is being changed and if it already exists
-        if (!existingUser.getUsername().equals(userDto.getUsername()) &&
-                userRepository.existsByUsername(userDto.getUsername())) {
-            throw new UsernameAlreadyExistsException("Username already exists: " + userDto.getUsername());
+        if (!existingUser.getUsername().equals(userUpdateRequest.getUsername()) &&
+                userRepository.existsByUsername(userUpdateRequest.getUsername())) {
+            throw new UsernameAlreadyExistsException("Username already exists: " + userUpdateRequest.getUsername());
         }
 
-        existingUser.setUsername(userDto.getUsername());
-        existingUser.setRole(userDto.getRole());
+        existingUser.setUsername(userUpdateRequest.getUsername());
+        existingUser.setRole(userUpdateRequest.getRole());
 
         User updatedUser = userRepository.save(existingUser);
-        return convertToDto(updatedUser);
+        return convertToResponseDto(updatedUser);
     }
 
     public void deleteUser(Long id) {
@@ -75,22 +64,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    private UserDto convertToDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setUsername(user.getUsername());
-        // Don't include the password in the DTO when returning to client
-        userDto.setPassword(null);
-        userDto.setRole(user.getRole());
-        return userDto;
-    }
-
-    private User convertToEntity(UserDto userDto) {
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setUsername(userDto.getUsername());
-        user.setPassword(userDto.getPassword());
-        // Role will be set in the createUser method
-        return user;
+    private UserResponse convertToResponseDto(User user) {
+        UserResponse userResponseDto = new UserResponse();
+        userResponseDto.setId(user.getId());
+        userResponseDto.setUsername(user.getUsername());
+        userResponseDto.setRole(user.getRole());
+        return userResponseDto;
     }
 }

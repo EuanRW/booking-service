@@ -1,9 +1,9 @@
-package euan.lessonbookingservice.dto;
+package euan.lessonbookingservice.dto.response;
 
 import lombok.Data;
 
 @Data
-public class BookingDto {
+public class BookingResponse {
     private Long id;
     private Long lessonId;
     private Long studentId;

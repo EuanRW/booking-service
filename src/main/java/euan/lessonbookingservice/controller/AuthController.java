@@ -41,7 +41,7 @@ public class AuthController {
     @Operation(summary = "Authenticate user", description = "Authenticates a user and returns a JWT token")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully authenticated",
-                content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
         @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content)
     })
     public ResponseEntity<AuthResponse> login(
@@ -63,7 +63,7 @@ public class AuthController {
     @Operation(summary = "Register new user", description = "Registers a new user with STUDENT role and returns a JWT token")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully registered",
-                content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
         @ApiResponse(responseCode = "400", description = "Username already exists", content = @Content)
     })
     public ResponseEntity<AuthResponse> register(
