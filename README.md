@@ -1,6 +1,18 @@
 # booking-service
 
-A generic booking service that can manage lessons, rooms, equipment, and other bookable resources.
+Generic Java booking system with a modular architecture.
+
+## Architecture
+
+The long-term goal is to keep modules independent while allowing them to collaborate through well-defined service interfaces.
+
+```
+booking-system/ 
+├── authentication 
+├── users 
+├── bookings 
+└── resources
+```
 
 ## Tech stack
 
