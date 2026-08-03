@@ -17,7 +17,7 @@ public class User {
 
     private String username;
     private String password;
-    private String role; // STUDENT, TEACHER, ADMIN
+    private String role; // STUDENT, ORGANIZER, ADMIN
 
 //    @OneToMany(mappedBy = "teacher")
 //    private List<Lesson> lessons;

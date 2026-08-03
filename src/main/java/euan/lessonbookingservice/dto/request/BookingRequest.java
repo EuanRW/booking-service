@@ -1,12 +1,13 @@
 package euan.lessonbookingservice.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class BookingRequest {
-    @NotBlank(message = "Lesson ID is required")
+    private Long resourceId;
     private Long lessonId;
-    @NotBlank(message = "Student ID is required")
+
+    @NotNull(message = "Student ID is required")
     private Long studentId;
 }

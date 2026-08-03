@@ -16,6 +16,6 @@ public class UserUpdateRequest {
     @NotBlank(message = "Password is required")
     private String password;
 
-    @Pattern(regexp = "STUDENT|TEACHER|ADMIN", message = "Role must be either STUDENT, TEACHER, or ADMIN")
+    @Pattern(regexp = "STUDENT|ORGANIZER|ADMIN", message = "Role must be either STUDENT, ORGANIZER, or ADMIN")
     private String role;
 }

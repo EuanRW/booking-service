@@ -3,10 +3,10 @@ package euan.lessonbookingservice.service;
 import euan.lessonbookingservice.dto.request.BookingRequest;
 import euan.lessonbookingservice.dto.response.BookingResponse;
 import euan.lessonbookingservice.entity.Booking;
-import euan.lessonbookingservice.entity.Lesson;
+import euan.lessonbookingservice.entity.Resource;
 import euan.lessonbookingservice.entity.User;
 import euan.lessonbookingservice.repository.BookingRepository;
-import euan.lessonbookingservice.repository.LessonRepository;
+import euan.lessonbookingservice.repository.ResourceRepository;
 import euan.lessonbookingservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final LessonRepository lessonRepository;
+    private final ResourceRepository resourceRepository;
     private final UserRepository userRepository;
 
-    public BookingService(BookingRepository bookingRepository, LessonRepository lessonRepository, UserRepository userRepository) {
+    public BookingService(BookingRepository bookingRepository, ResourceRepository resourceRepository, UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
-        this.lessonRepository = lessonRepository;
+        this.resourceRepository = resourceRepository;
         this.userRepository = userRepository;
     }
 
@@ -39,7 +39,6 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    // New method to get bookings by student ID
     public List<BookingResponse> getBookingsByStudentId(Long studentId) {
         return bookingRepository.findByStudentId(studentId)
                 .stream()
@@ -54,8 +53,11 @@ public class BookingService {
 
     public Optional<BookingResponse> updateBooking(Long id, BookingRequest bookingRequest) {
         return bookingRepository.findById(id).map(existingBooking -> {
-            Optional<Lesson> lessonOpt = lessonRepository.findById(bookingRequest.getLessonId());
-            lessonOpt.ifPresent(existingBooking::setLesson);
+            Long resourceId = resolveResourceId(bookingRequest);
+            if (resourceId != null) {
+                Optional<Resource> resourceOpt = resourceRepository.findById(resourceId);
+                resourceOpt.ifPresent(existingBooking::setResource);
+            }
 
             Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
             studentOpt.ifPresent(existingBooking::setStudent);
@@ -76,19 +78,24 @@ public class BookingService {
     private BookingResponse convertToDto(Booking booking) {
         BookingResponse dto = new BookingResponse();
         dto.setId(booking.getId());
-        dto.setLessonId(booking.getLesson().getId());
-        dto.setStudentId(booking.getStudent().getId());
+        dto.setResourceId(booking.getResource() != null ? booking.getResource().getId() : null);
+        dto.setStudentId(booking.getStudent() != null ? booking.getStudent().getId() : null);
         return dto;
     }
 
     private Booking convertToEntity(BookingRequest bookingRequest) {
         Booking booking = new Booking();
 
-        Optional<Lesson> lessonOpt = lessonRepository.findById(bookingRequest.getLessonId());
-        if (lessonOpt.isPresent()) {
-            booking.setLesson(lessonOpt.get());
+        Long resourceId = resolveResourceId(bookingRequest);
+        if (resourceId != null) {
+            Optional<Resource> resourceOpt = resourceRepository.findById(resourceId);
+            if (resourceOpt.isPresent()) {
+                booking.setResource(resourceOpt.get());
+            } else {
+                throw new IllegalArgumentException("Resource with ID " + resourceId + " not found.");
+            }
         } else {
-            throw new IllegalArgumentException("Lesson with ID " + bookingRequest.getLessonId() + " not found.");
+            throw new IllegalArgumentException("Resource ID or legacy lesson ID is required.");
         }
 
         Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
@@ -99,5 +106,12 @@ public class BookingService {
         }
 
         return booking;
+    }
+
+    private Long resolveResourceId(BookingRequest bookingRequest) {
+        if (bookingRequest.getResourceId() != null) {
+            return bookingRequest.getResourceId();
+        }
+        return bookingRequest.getLessonId();
     }
 }

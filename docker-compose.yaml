@@ -5,7 +5,7 @@ services:
     container_name: postgres-container
     restart: always
     environment:
-      POSTGRES_DB: lesson_booking
+      POSTGRES_DB: booking_service
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
@@ -27,18 +27,18 @@ services:
     depends_on:
       - postgres
 
-#  lesson-booking-service:
+#  booking-service:
 #    build:
 #      context: .
 #      dockerfile: Dockerfile
-#    container_name: lesson-booking-service
+#    container_name: booking-service
 #    restart: always
 #    depends_on:
 #      - postgres
 #    ports:
 #      - "8080:8080"
 #    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lesson_booking
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/booking_service
 #      SPRING_DATASOURCE_USERNAME: admin
 #      SPRING_DATASOURCE_PASSWORD: admin
 #      SPRING_JPA_HIBERNATE_DDL_AUTO: none

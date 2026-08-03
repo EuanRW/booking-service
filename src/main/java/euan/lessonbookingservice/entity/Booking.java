@@ -14,7 +14,7 @@ public class Booking {
     private Long id;
 
     @ManyToOne
-    private Lesson lesson;
+    private Resource resource;
 
     @ManyToOne
     private User student;

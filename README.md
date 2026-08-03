@@ -1,6 +1,6 @@
-# lesson-booking-service
+# booking-service
 
-A straightforward app for scheduling lessons.
+A generic booking service that can manage lessons, rooms, equipment, and other bookable resources.
 
 ## Tech stack
 
@@ -35,7 +35,7 @@ Run the supporting services (Postgres, PGAdmin etc):
   docker compose up --build
 ```
 
-Once your project environment has been established in IntelliJ IDEA, build the `lesson-booking-service`. Run:
+Once your project environment has been established in IntelliJ IDEA, build the `booking-service`. Run:
 
 ```shell
   mvn clean package

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>euan</groupId>
-    <artifactId>lesson-booking-service</artifactId>
+    <artifactId>booking-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>lesson-booking-service</name>
-    <description>lesson-booking-service</description>
+    <name>booking-service</name>
+    <description>generic booking service</description>
     <url/>
     <licenses>
         <license/>
@@ -139,7 +139,7 @@
                 <configuration>
                     <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
                     <!-- Database connection details -->
-                    <url>jdbc:postgresql://localhost:5432/lesson_booking</url>
+                    <url>jdbc:postgresql://localhost:5432/booking_service</url>
                     <username>admin</username>
                     <password>admin</password>
                     <driver>org.postgresql.Driver</driver>

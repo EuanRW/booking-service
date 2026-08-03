@@ -16,9 +16,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Lesson Booking Service API")
+                        .title("Generic Booking Service API")
                         .version("1.0.0")
-                        .description("API for managing lesson bookings, users, and lessons")
+                        .description("API for managing generic booking resources, users, and bookings")
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))
