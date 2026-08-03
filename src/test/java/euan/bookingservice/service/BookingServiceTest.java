@@ -1,13 +1,14 @@
 package euan.bookingservice.service;
 
-import euan.bookingservice.dto.request.BookingRequest;
-import euan.bookingservice.dto.response.BookingResponse;
-import euan.bookingservice.entity.Booking;
-import euan.bookingservice.entity.Resource;
-import euan.bookingservice.entity.User;
-import euan.bookingservice.repository.BookingRepository;
-import euan.bookingservice.repository.ResourceRepository;
-import euan.bookingservice.repository.UserRepository;
+import euan.bookingservice.bookings.dto.request.BookingRequest;
+import euan.bookingservice.bookings.dto.response.BookingResponse;
+import euan.bookingservice.bookings.entity.Booking;
+import euan.bookingservice.bookings.repository.BookingRepository;
+import euan.bookingservice.bookings.service.BookingService;
+import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.resources.repository.ResourceRepository;
+import euan.bookingservice.users.entity.User;
+import euan.bookingservice.users.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
