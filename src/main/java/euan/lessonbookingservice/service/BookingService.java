@@ -53,11 +53,8 @@ public class BookingService {
 
     public Optional<BookingResponse> updateBooking(Long id, BookingRequest bookingRequest) {
         return bookingRepository.findById(id).map(existingBooking -> {
-            Long resourceId = resolveResourceId(bookingRequest);
-            if (resourceId != null) {
-                Optional<Resource> resourceOpt = resourceRepository.findById(resourceId);
-                resourceOpt.ifPresent(existingBooking::setResource);
-            }
+            Optional<Resource> resourceOpt = resourceRepository.findById(bookingRequest.getResourceId());
+            resourceOpt.ifPresent(existingBooking::setResource);
 
             Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
             studentOpt.ifPresent(existingBooking::setStudent);
@@ -66,6 +63,7 @@ public class BookingService {
             return convertToDto(updatedBooking);
         });
     }
+
 
     public boolean deleteBooking(Long id) {
         if (bookingRepository.existsById(id)) {
@@ -86,16 +84,11 @@ public class BookingService {
     private Booking convertToEntity(BookingRequest bookingRequest) {
         Booking booking = new Booking();
 
-        Long resourceId = resolveResourceId(bookingRequest);
-        if (resourceId != null) {
-            Optional<Resource> resourceOpt = resourceRepository.findById(resourceId);
-            if (resourceOpt.isPresent()) {
-                booking.setResource(resourceOpt.get());
-            } else {
-                throw new IllegalArgumentException("Resource with ID " + resourceId + " not found.");
-            }
+        Optional<Resource> resourceOpt = resourceRepository.findById(bookingRequest.getResourceId());
+        if (resourceOpt.isPresent()) {
+            booking.setResource(resourceOpt.get());
         } else {
-            throw new IllegalArgumentException("Resource ID or legacy lesson ID is required.");
+            throw new IllegalArgumentException("Resource with ID " + bookingRequest.getResourceId() + " not found.");
         }
 
         Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
@@ -106,12 +99,5 @@ public class BookingService {
         }
 
         return booking;
-    }
-
-    private Long resolveResourceId(BookingRequest bookingRequest) {
-        if (bookingRequest.getResourceId() != null) {
-            return bookingRequest.getResourceId();
-        }
-        return bookingRequest.getLessonId();
     }
 }

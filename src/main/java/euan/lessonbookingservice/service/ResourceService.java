@@ -62,11 +62,6 @@ public class ResourceService {
         return false;
     }
 
-    public ResourceResponse createLessonResourceFromLegacyRequest(ResourceRequest request) {
-        request.setResourceType(ResourceType.LESSON);
-        return createResource(request);
-    }
-
     private ResourceResponse convertToDto(Resource resource) {
         ResourceResponse dto = new ResourceResponse();
         dto.setId(resource.getId());

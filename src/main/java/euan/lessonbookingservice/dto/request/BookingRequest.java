@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class BookingRequest {
+    @NotNull(message = "Resource ID is required")
     private Long resourceId;
-    private Long lessonId;
 
     @NotNull(message = "Student ID is required")
     private Long studentId;
