@@ -40,26 +40,26 @@ class BookingServiceTest {
         Resource resource = new Resource();
         resource.setId(10L);
 
-        User student = new User();
-        student.setId(4L);
+        User user = new User();
+        user.setId(4L);
 
         BookingRequest request = new BookingRequest();
         request.setResourceId(10L);
-        request.setStudentId(4L);
+        request.setUserId(4L);
 
         Booking savedBooking = new Booking();
         savedBooking.setId(99L);
         savedBooking.setResource(resource);
-        savedBooking.setStudent(student);
+        savedBooking.setUser(user);
 
         when(resourceRepository.findById(10L)).thenReturn(Optional.of(resource));
-        when(userRepository.findById(4L)).thenReturn(Optional.of(student));
+        when(userRepository.findById(4L)).thenReturn(Optional.of(user));
         when(bookingRepository.save(any(Booking.class))).thenReturn(savedBooking);
 
         BookingResponse response = bookingService.createBooking(request);
 
         assertEquals(99L, response.getId());
         assertEquals(10L, response.getResourceId());
-        assertEquals(4L, response.getStudentId());
+        assertEquals(4L, response.getUserId());
     }
 }

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByStudentId(Long studentId);
+    List<Booking> findByUserId(Long userId);
     List<Booking> findByResourceId(Long resourceId);
 }

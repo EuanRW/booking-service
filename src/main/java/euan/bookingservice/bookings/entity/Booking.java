@@ -19,5 +19,5 @@ public class Booking {
     private Resource resource;
 
     @ManyToOne
-    private User student;
+    private User user;
 }

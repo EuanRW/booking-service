@@ -39,8 +39,8 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookingResponse> getBookingsByStudentId(Long studentId) {
-        return bookingRepository.findByStudentId(studentId)
+    public List<BookingResponse> getBookingsByUserId(Long userId) {
+        return bookingRepository.findByUserId(userId)
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -56,8 +56,8 @@ public class BookingService {
             Optional<Resource> resourceOpt = resourceRepository.findById(bookingRequest.getResourceId());
             resourceOpt.ifPresent(existingBooking::setResource);
 
-            Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
-            studentOpt.ifPresent(existingBooking::setStudent);
+            Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
+            userOpt.ifPresent(existingBooking::setUser);
 
             Booking updatedBooking = bookingRepository.save(existingBooking);
             return convertToDto(updatedBooking);
@@ -77,7 +77,7 @@ public class BookingService {
         BookingResponse dto = new BookingResponse();
         dto.setId(booking.getId());
         dto.setResourceId(booking.getResource() != null ? booking.getResource().getId() : null);
-        dto.setStudentId(booking.getStudent() != null ? booking.getStudent().getId() : null);
+        dto.setUserId(booking.getUser() != null ? booking.getUser().getId() : null);
         return dto;
     }
 
@@ -91,11 +91,11 @@ public class BookingService {
             throw new IllegalArgumentException("Resource with ID " + bookingRequest.getResourceId() + " not found.");
         }
 
-        Optional<User> studentOpt = userRepository.findById(bookingRequest.getStudentId());
-        if (studentOpt.isPresent()) {
-            booking.setStudent(studentOpt.get());
+        Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
+        if (userOpt.isPresent()) {
+            booking.setUser(userOpt.get());
         } else {
-            throw new IllegalArgumentException("Student with ID " + bookingRequest.getStudentId() + " not found.");
+            throw new IllegalArgumentException("User with ID " + bookingRequest.getUserId() + " not found.");
         }
 
         return booking;

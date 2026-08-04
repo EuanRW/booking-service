@@ -60,7 +60,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register new user", description = "Registers a new user with STUDENT role and returns a JWT token")
+    @Operation(summary = "Register new user", description = "Registers a new user with USER role and returns a JWT token")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully registered",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
@@ -75,11 +75,11 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        // Create new user with STUDENT role by default
+        // Create new user with USER role by default
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("STUDENT");
+        user.setRole("USER");
 
         userRepository.save(user);
 

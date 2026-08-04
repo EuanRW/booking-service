@@ -48,8 +48,8 @@
             <column name="resource_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_bookings_resource" references="resources(id)"/>
             </column>
-            <column name="student_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_bookings_student" references="users(id)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_bookings_user" references="users(id)"/>
             </column>
         </createTable>
     </changeSet>

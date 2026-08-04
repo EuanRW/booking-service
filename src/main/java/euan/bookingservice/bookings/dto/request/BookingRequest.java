@@ -8,6 +8,6 @@ public class BookingRequest {
     @NotNull(message = "Resource ID is required")
     private Long resourceId;
 
-    @NotNull(message = "Student ID is required")
-    private Long studentId;
+    @NotNull(message = "User ID is required")
+    private Long userId;
 }

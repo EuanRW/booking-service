@@ -37,12 +37,12 @@ public class BookingController {
     @PostMapping
     @Operation(
             summary = "Create a new booking",
-            description = "Students can only create bookings for themselves. Admins can create bookings for any student."
+            description = "Users can only create bookings for themselves. Admins can create bookings for any user."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Booking created successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookingResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot create booking for another student",
+            @ApiResponse(responseCode = "403", description = "Forbidden - Cannot create booking for another user",
                     content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid input data",
                     content = @Content)
@@ -56,8 +56,8 @@ public class BookingController {
             @Valid @RequestBody BookingRequest bookingRequest) {
         Long currentUserId = getCurrentUserId();
 
-        // Ensure students can only create bookings for themselves
-        if (!isAdmin() && !bookingRequest.getStudentId().equals(currentUserId)) {
+        // Ensure users can only create bookings for themselves
+        if (!isAdmin() && !bookingRequest.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 
@@ -68,7 +68,7 @@ public class BookingController {
     @GetMapping
     @Operation(
             summary = "Get all bookings",
-            description = "Students see only their own bookings. Admins see all bookings."
+            description = "Users see only their own bookings. Admins see all bookings."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved bookings",
@@ -81,15 +81,15 @@ public class BookingController {
             // Admins can see all bookings
             return ResponseEntity.ok(bookingService.getAllBookings());
         } else {
-            // Students can only see their own bookings
-            return ResponseEntity.ok(bookingService.getBookingsByStudentId(currentUserId));
+            // Users can only see their own bookings
+            return ResponseEntity.ok(bookingService.getBookingsByUserId(currentUserId));
         }
     }
 
     @GetMapping("/{id}")
     @Operation(
             summary = "Get booking by ID",
-            description = "Students can only view their own bookings. Admins can view any booking."
+            description = "Users can only view their own bookings. Admins can view any booking."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Booking found",
@@ -119,7 +119,7 @@ public class BookingController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Update booking",
-            description = "Students can only update their own bookings. Admins can update any booking."
+            description = "Users can only update their own bookings. Admins can update any booking."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Booking updated successfully",
@@ -148,9 +148,9 @@ public class BookingController {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 
-        // Ensure students can't change the studentId to someone else
+        // Ensure users can't change the userId to someone else
         Long currentUserId = getCurrentUserId();
-        if (!isAdmin() && !bookingRequest.getStudentId().equals(currentUserId)) {
+        if (!isAdmin() && !bookingRequest.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 
@@ -161,7 +161,7 @@ public class BookingController {
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Delete booking",
-            description = "Students can only delete their own bookings. Admins can delete any booking."
+            description = "Users can only delete their own bookings. Admins can delete any booking."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Booking deleted successfully",
@@ -208,6 +208,6 @@ public class BookingController {
         }
 
         Long currentUserId = getCurrentUserId();
-        return booking.getStudentId().equals(currentUserId);
+        return booking.getUserId().equals(currentUserId);
     }
 }
