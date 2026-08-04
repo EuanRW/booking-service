@@ -34,6 +34,12 @@ public class UserService {
         return convertToResponseDto(user);
     }
 
+    public UserResponse getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+        return convertToResponseDto(user);
+    }
+
     public Long getUserIdByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(User::getId)

@@ -63,6 +63,17 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @GetMapping("/by-username/{username}")
+    @Operation(summary = "Get user by username", description = "Retrieves a user by their username")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<UserResponse> getUserByUsername(@Parameter(description = "Username") @PathVariable String username) {
+        return ResponseEntity.ok(userService.getUserByUsername(username));
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a user", description = "Updates an existing user")
