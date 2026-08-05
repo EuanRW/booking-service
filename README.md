@@ -69,4 +69,8 @@ running the below command.
   mvn liquibase:clearCheckSums
 ```
 
+## Dev links
+
+- PgAdmin: http://localhost:8081/browser/
+- Swagger: http://localhost:8080/swagger-ui/index.html#
 

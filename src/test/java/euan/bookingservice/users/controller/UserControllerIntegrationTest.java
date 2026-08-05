@@ -54,7 +54,52 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void getCurrentUser_withMockUser_returnsUser() throws Exception {
+    void getAllUsers_withoutAuthentication_returnsUnauthorized() throws Exception {
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getAllUsers_asMockUser_returnsUsers() throws Exception {
+        User alice = new User();
+        alice.setUsername("alice");
+        alice.setPassword("pw");
+        alice.setRole("USER");
+
+        User bob = new User();
+        bob.setUsername("bob");
+        bob.setPassword("pw");
+        bob.setRole("ORGANIZER");
+
+        userRepository.save(alice);
+        userRepository.save(bob);
+
+        mockMvc.perform(get("/users")
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("alice")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andExpect(jsonPath("$[0].username", is("alice")))
+                .andExpect(jsonPath("$[0].role", is("USER")))
+                .andExpect(jsonPath("$[1].username", is("bob")))
+                .andExpect(jsonPath("$[1].role", is("ORGANIZER")));
+    }
+
+    @Test
+    void getAllUsers_whenNoUsersExist_returnsEmptyList() throws Exception {
+        mockMvc.perform(get("/users")
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("alice")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(0)));
+    }
+
+    @Test
+    void getCurrentUser_withoutAuthentication_returnsUnauthorized() throws Exception {
+        mockMvc.perform(get("/users/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getCurrentUser_asMockUser_returnsUser() throws Exception {
         // create user in repository
         User user = new User();
         user.setUsername("alice");
@@ -70,7 +115,13 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void getUserByUsername_returnsUser() throws Exception {
+    void getUserByUsername_withoutAuthentication_returnsUnauthorized() throws Exception {
+        mockMvc.perform(get("/users/by-username/bob"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getUserByUsername_asMockUser_returnsUser() throws Exception {
         User user = new User();
         user.setUsername("bob");
         user.setPassword("pw");
@@ -84,7 +135,34 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void updateUser_requiresAdmin_andUpdates() throws Exception {
+    void updateUser_withoutAuthentication_returnsUnauthorized() throws Exception {
+        String payload = "{\"username\": \"charlie-updated\", \"password\": \"pw\", \"role\": \"ADMIN\"}";
+
+        mockMvc.perform(put("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updateUser_asNonAdmin_returnsForbidden() throws Exception {
+        User user = new User();
+        user.setUsername("charlie");
+        user.setPassword("pw");
+        user.setRole("USER");
+        User saved = userRepository.save(user);
+
+        String payload = "{\"username\": \"charlie-updated\", \"password\": \"pw\", \"role\": \"ADMIN\"}";
+
+        mockMvc.perform(put("/users/" + saved.getId())
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("user").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateUser_asAdmin_updates() throws Exception {
         User user = new User();
         user.setUsername("charlie");
         user.setPassword("pw");
@@ -103,7 +181,26 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void deleteUser_requiresAdmin_andDeletes() throws Exception {
+    void deleteUser_withoutAuthentication_returnsUnauthorized() throws Exception {
+        mockMvc.perform(delete("/users/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteUser_asNonAdmin_returnsForbidden() throws Exception {
+        User user = new User();
+        user.setUsername("dave");
+        user.setPassword("pw");
+        user.setRole("USER");
+        User saved = userRepository.save(user);
+
+        mockMvc.perform(delete("/users/" + saved.getId())
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("user").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteUser_asAdmin_deletes() throws Exception {
         User user = new User();
         user.setUsername("dave");
         user.setPassword("pw");
