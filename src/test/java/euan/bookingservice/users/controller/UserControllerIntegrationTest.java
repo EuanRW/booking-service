@@ -225,7 +225,6 @@ public class UserControllerIntegrationTest {
 
         User saved = userRepository.save(user);
 
-        // Assuming UserUpdateRequest has validation constraints
         String invalidPayload = """
             {
                 "username": "",
