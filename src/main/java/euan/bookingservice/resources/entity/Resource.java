@@ -1,17 +1,16 @@
 package euan.bookingservice.resources.entity;
 
+import euan.bookingservice.common.audit.Auditable;
 import euan.bookingservice.users.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
 @Table(name = "resources")
-public class Resource {
+public class Resource extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,9 +19,9 @@ public class Resource {
     private String description;
 
     @ManyToOne
-    private User organizer;
+    private User owner;
 
-    private LocalDateTime scheduledTime;
+    private Integer capacity;
 
     @Enumerated(EnumType.STRING)
     private ResourceType resourceType;

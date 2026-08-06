@@ -42,11 +42,10 @@ public class ResourceService {
         return resourceRepository.findById(id).map(existingResource -> {
             existingResource.setTitle(request.getTitle());
             existingResource.setDescription(request.getDescription());
-            existingResource.setScheduledTime(request.getScheduledTime());
             existingResource.setResourceType(request.getResourceType());
 
-            Optional<User> organizerOpt = userRepository.findById(request.getOrganizerId());
-            organizerOpt.ifPresent(existingResource::setOrganizer);
+            Optional<User> organizerOpt = userRepository.findById(request.getOwnerId());
+            organizerOpt.ifPresent(existingResource::setOwner);
 
             Resource updatedResource = resourceRepository.save(existingResource);
             return convertToDto(updatedResource);
@@ -66,8 +65,7 @@ public class ResourceService {
         dto.setId(resource.getId());
         dto.setTitle(resource.getTitle());
         dto.setDescription(resource.getDescription());
-        dto.setOrganizerId(resource.getOrganizer() != null ? resource.getOrganizer().getId() : null);
-        dto.setScheduledTime(resource.getScheduledTime());
+        dto.setOwnerId(resource.getOwner() != null ? resource.getOwner().getId() : null);
         dto.setResourceType(resource.getResourceType());
         return dto;
     }
@@ -76,14 +74,13 @@ public class ResourceService {
         Resource resource = new Resource();
         resource.setTitle(request.getTitle());
         resource.setDescription(request.getDescription());
-        resource.setScheduledTime(request.getScheduledTime());
         resource.setResourceType(request.getResourceType());
 
-        Optional<User> organizerOpt = userRepository.findById(request.getOrganizerId());
+        Optional<User> organizerOpt = userRepository.findById(request.getOwnerId());
         if (organizerOpt.isPresent()) {
-            resource.setOrganizer(organizerOpt.get());
+            resource.setOwner(organizerOpt.get());
         } else {
-            throw new IllegalArgumentException("Organizer with ID " + request.getOrganizerId() + " not found.");
+            throw new IllegalArgumentException("Organizer with ID " + request.getOwnerId() + " not found.");
         }
 
         return resource;

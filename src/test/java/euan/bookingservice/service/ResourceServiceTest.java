@@ -43,7 +43,7 @@ class ResourceServiceTest {
         ResourceRequest request = new ResourceRequest();
         request.setTitle("Room A");
         request.setDescription("Boardroom");
-        request.setOrganizerId(2L);
+        request.setOwnerId(2L);
         request.setScheduledTime(LocalDateTime.of(2026, 8, 7, 10, 0));
         request.setResourceType(ResourceType.ROOM);
 
@@ -51,8 +51,7 @@ class ResourceServiceTest {
         savedResource.setId(7L);
         savedResource.setTitle(request.getTitle());
         savedResource.setDescription(request.getDescription());
-        savedResource.setOrganizer(organizer);
-        savedResource.setScheduledTime(request.getScheduledTime());
+        savedResource.setOwner(organizer);
         savedResource.setResourceType(request.getResourceType());
 
         when(userRepository.findById(2L)).thenReturn(Optional.of(organizer));
@@ -63,7 +62,7 @@ class ResourceServiceTest {
         assertEquals(7L, response.getId());
         assertEquals("Room A", response.getTitle());
         assertEquals(ResourceType.ROOM, response.getResourceType());
-        assertEquals(2L, response.getOrganizerId());
+        assertEquals(2L, response.getOwnerId());
         verify(resourceRepository).save(any(Resource.class));
     }
 }

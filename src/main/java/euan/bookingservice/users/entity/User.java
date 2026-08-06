@@ -1,5 +1,6 @@
 package euan.bookingservice.users.entity;
 
+import euan.bookingservice.common.audit.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "users")
-public class User {
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,9 +17,6 @@ public class User {
     private String username;
     private String password;
     private String role; // USER, ORGANIZER, ADMIN
-
-//    @OneToMany(mappedBy = "teacher")
-//    private List<Lesson> lessons;
 
     @Version
     private Integer version;

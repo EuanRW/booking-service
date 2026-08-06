@@ -35,12 +35,12 @@ public class DemoDataFactory {
         return user;
     }
 
-    public Resource event(String title, User organizer) {
+    public Resource event(String title, User owner) {
         Resource resource = new Resource();
 
         resource.setResourceType(ResourceType.EVENT);
         resource.setTitle(title);
-        resource.setOrganizer(organizer);
+        resource.setOwner(owner);
 
         return resource;
     }

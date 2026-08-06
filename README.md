@@ -33,6 +33,11 @@ booking-system/
 - Deployment: AWS (EC2)
 - Monitoring: Prometheus + Grafana
 
+## Testing Strategy
+
+The project follows an integration testing methodology, using realistic HTTP requests to validate complete application behaviour. Tests run against the Spring application context with an isolated in-memory database, verifying interactions between controllers, security, services, and persistence layers.
+
+
 ## Configuration
 
 Add a .env with a `JWT_SECRET` env var generated with:
@@ -73,4 +78,14 @@ running the below command.
 
 - PgAdmin: http://localhost:8081/browser/
 - Swagger: http://localhost:8080/swagger-ui/index.html#
+
+## Useful dev commands
+
+Stop and remove running containers and related volumes.
+
+```shell
+    docker stop $(docker ps -q) && \
+    docker rm $(docker ps -aq) && \
+    docker volume rm $(docker volume ls -q)
+```
 

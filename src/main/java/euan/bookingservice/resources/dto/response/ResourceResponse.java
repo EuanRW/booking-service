@@ -10,7 +10,7 @@ public class ResourceResponse {
     private Long id;
     private String title;
     private String description;
-    private Long organizerId;
+    private Long ownerId;
     private LocalDateTime scheduledTime;
     private ResourceType resourceType;
 }

@@ -80,6 +80,8 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
+        user.setCreatedBy(user.getUsername());
+        user.setUpdatedBy(user.getUsername());
 
         userRepository.save(user);
 

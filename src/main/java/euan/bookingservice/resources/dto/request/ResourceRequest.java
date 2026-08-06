@@ -14,8 +14,8 @@ public class ResourceRequest {
 
     private String description;
 
-    @NotNull(message = "Organizer is required")
-    private Long organizerId;
+    @NotNull(message = "Owner is required")
+    private Long ownerId;
 
     private LocalDateTime scheduledTime;
 
