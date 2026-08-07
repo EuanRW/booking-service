@@ -3,6 +3,7 @@ package euan.bookingservice.bookings.service;
 import euan.bookingservice.bookings.dto.request.BookingRequest;
 import euan.bookingservice.bookings.dto.response.BookingResponse;
 import euan.bookingservice.bookings.entity.Booking;
+import euan.bookingservice.bookings.entity.BookingStatus;
 import euan.bookingservice.resources.entity.Resource;
 import euan.bookingservice.users.entity.User;
 import euan.bookingservice.bookings.repository.BookingRepository;
@@ -28,6 +29,7 @@ public class BookingService {
 
     public BookingResponse createBooking(BookingRequest bookingRequest) {
         Booking booking = convertToEntity(bookingRequest);
+        booking.setStatus(BookingStatus.CONFIRMED);
         Booking savedBooking = bookingRepository.save(booking);
         return convertToDto(savedBooking);
     }

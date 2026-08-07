@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.OffsetDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -16,9 +18,21 @@ public class Booking extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "resource_id", nullable = false)
     private Resource resource;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "status", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
+
+    @Column(name = "start_time", nullable = false)
+    private OffsetDateTime startTime;
+
+    @Column(name = "end_time", nullable = false)
+    private OffsetDateTime endTime;
 }

@@ -1,10 +1,13 @@
 package euan.bookingservice.seed;
 
 import euan.bookingservice.bookings.entity.Booking;
+import euan.bookingservice.bookings.entity.BookingStatus;
 import euan.bookingservice.resources.entity.Resource;
 import euan.bookingservice.resources.entity.ResourceType;
 import euan.bookingservice.users.entity.User;
 import org.springframework.stereotype.Component;
+
+import java.time.OffsetDateTime;
 
 @Component
 public class DemoDataFactory {
@@ -51,6 +54,9 @@ public class DemoDataFactory {
 
         booking.setUser(user);
         booking.setResource(resource);
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setStartTime(OffsetDateTime.now());
+        booking.setEndTime(OffsetDateTime.now().plusHours(1));
 
         return booking;
     }
