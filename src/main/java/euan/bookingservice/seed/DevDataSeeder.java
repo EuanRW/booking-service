@@ -2,6 +2,7 @@ package euan.bookingservice.seed;
 
 import euan.bookingservice.bookings.repository.BookingRepository;
 import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.resources.repository.ResourceAvailabilityRuleRepository;
 import euan.bookingservice.resources.repository.ResourceRepository;
 import euan.bookingservice.users.entity.User;
 import euan.bookingservice.users.repository.UserRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 public class DevDataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
+    private final ResourceAvailabilityRuleRepository resourceAvailabilityRuleRepository;
     private final BookingRepository bookingRepository;
 
     private final DemoDataFactory factory;
@@ -61,6 +63,19 @@ public class DevDataSeeder implements CommandLineRunner {
 
         Resource classB = resourceRepository.save(
                 factory.event("Pilates", admin));
+
+        // Availability rules
+        resourceAvailabilityRuleRepository.save(
+          factory.availabilityRule(
+                  classA
+          )
+        );
+
+        resourceAvailabilityRuleRepository.save(
+                factory.availabilityRule(
+                        classB
+                )
+        );
 
         // Bookings
         bookingRepository.save(factory.booking(

@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,4 +28,7 @@ public class Resource extends Auditable {
 
     @Enumerated(EnumType.STRING)
     private ResourceType resourceType;
+
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResourceAvailabilityRule> availabilityRules = new ArrayList<>();
 }
