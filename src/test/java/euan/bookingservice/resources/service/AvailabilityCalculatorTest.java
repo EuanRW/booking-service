@@ -556,6 +556,36 @@ class AvailabilityCalculatorTest {
                 );
     }
 
+    @Test
+    void shouldReturnNoAvailabilityWhenBookingsBlockEntireDay() {
+
+        ResourceAvailabilityRule rule =
+                rule(DayOfWeek.MONDAY, "09:00", "17:00");
+
+        Booking booking1 =
+                booking(
+                        MONDAY.atTime(9, 0),
+                        MONDAY.atTime(12, 0)
+                );
+
+        Booking booking2 =
+                booking(
+                        MONDAY.atTime(12, 0),
+                        MONDAY.atTime(17, 0)
+                );
+
+        AvailabilityResponse result = calculator.calculate(
+                MONDAY,
+                MONDAY,
+                List.of(rule),
+                List.of(booking1, booking2),
+                1
+        );
+
+        assertThat(result.getSlots()).isEmpty();
+    }
+
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
