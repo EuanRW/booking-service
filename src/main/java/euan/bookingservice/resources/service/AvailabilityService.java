@@ -183,7 +183,7 @@ public class AvailabilityService {
             OffsetDateTime from,
             OffsetDateTime to
     ) {
-        getResource(resourceId);
+        Resource resource = getResource(resourceId);
 
         if (from == null || to == null) {
             throw new InvalidAvailabilityRuleException(
@@ -216,7 +216,8 @@ public class AvailabilityService {
                 fromDate,
                 toDate,
                 rules,
-                bookings
+                bookings,
+                resource.getCapacity()
         );
     }
 

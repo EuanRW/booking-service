@@ -18,7 +18,8 @@ public class AvailabilityCalculator {
             LocalDate from,
             LocalDate to,
             List<ResourceAvailabilityRule> rules,
-            List<Booking> bookings
+            List<Booking> bookings,
+            Integer capacity
     ) {
 
         List<AvailabilitySlot> slots = new ArrayList<>();
@@ -28,11 +29,14 @@ public class AvailabilityCalculator {
             LocalDate currentDate = date;
 
             List<Interval> ruleIntervals = rules.stream()
-                    .filter(rule -> rule.getDayOfWeek() == currentDate.getDayOfWeek())
-                    .filter(rule -> isEffective(rule, currentDate))
+                    .filter(rule ->
+                            rule.getDayOfWeek() == currentDate.getDayOfWeek())
+                    .filter(rule ->
+                            isEffective(rule, currentDate))
                     .map(rule -> new Interval(
                             currentDate.atTime(rule.getStartTime()),
-                            currentDate.atTime(rule.getEndTime())))
+                            currentDate.atTime(rule.getEndTime())
+                    ))
                     .toList();
 
             List<Interval> mergedRules = merge(ruleIntervals);
@@ -40,43 +44,89 @@ public class AvailabilityCalculator {
             List<Interval> bookingIntervals = bookings.stream()
                     .map(b -> new Interval(
                             b.getStartTime().toLocalDateTime(),
-                            b.getEndTime().toLocalDateTime()))
-                    .filter(i -> i.start.toLocalDate().equals(currentDate))
+                            b.getEndTime().toLocalDateTime()
+                    ))
+                    .filter(i ->
+                            overlapsDay(i, currentDate))
                     .sorted(Comparator.comparing(i -> i.start))
                     .toList();
 
-            List<Interval> available = subtract(mergedRules, bookingIntervals);
+            List<Interval> available;
 
-            for (Interval interval : available) {
-                slots.add(
-                        AvailabilitySlot.builder()
-                                .startTime(interval.start.atOffset(ZoneOffset.UTC))
-                                .endTime(interval.end.atOffset(ZoneOffset.UTC))
-                                .build()
+            if (capacity == null) {
+                /*
+                 * Null capacity means unlimited capacity.
+                 *
+                 * Bookings therefore do not reduce availability.
+                 */
+                available = mergedRules;
+
+            } else if (capacity <= 0) {
+                /*
+                 * A configured capacity of zero or less means
+                 * the resource cannot be booked.
+                 */
+                available = List.of();
+
+            } else {
+                /*
+                 * Capacity is configured, so only periods where
+                 * concurrent bookings are below capacity are available.
+                 */
+                available = subtract(
+                        mergedRules,
+                        bookingIntervals,
+                        capacity
                 );
             }
+
+            for (Interval interval : available) {
+
+                if (interval.start.isBefore(interval.end)) {
+                    slots.add(
+                            AvailabilitySlot.builder()
+                                    .startTime(
+                                            interval.start.atOffset(
+                                                    ZoneOffset.UTC
+                                            )
+                                    )
+                                    .endTime(
+                                            interval.end.atOffset(
+                                                    ZoneOffset.UTC
+                                            )
+                                    )
+                                    .build()
+                    );
+                }
+            }
         }
+
         return AvailabilityResponse.builder()
                 .slots(slots)
                 .build();
     }
 
-    private boolean isEffective(ResourceAvailabilityRule rule, LocalDate date) {
+    private boolean isEffective(
+            ResourceAvailabilityRule rule,
+            LocalDate date
+    ) {
 
-        if (rule.getEffectiveFrom() != null &&
-                date.isBefore(rule.getEffectiveFrom())) {
+        if (rule.getEffectiveFrom() != null
+                && date.isBefore(rule.getEffectiveFrom())) {
             return false;
         }
 
-        if (rule.getEffectiveTo() != null &&
-                date.isAfter(rule.getEffectiveTo())) {
+        if (rule.getEffectiveTo() != null
+                && date.isAfter(rule.getEffectiveTo())) {
             return false;
         }
 
         return true;
     }
 
-    private List<Interval> merge(List<Interval> intervals) {
+    private List<Interval> merge(
+            List<Interval> intervals
+    ) {
 
         if (intervals.isEmpty()) {
             return List.of();
@@ -97,11 +147,13 @@ public class AvailabilityCalculator {
             if (!next.start.isAfter(current.end)) {
 
                 if (next.end.isAfter(current.end)) {
-                    current = new Interval(current.start, next.end);
+                    current = new Interval(
+                            current.start,
+                            next.end
+                    );
                 }
 
             } else {
-
                 merged.add(current);
                 current = next;
             }
@@ -114,51 +166,144 @@ public class AvailabilityCalculator {
 
     private List<Interval> subtract(
             List<Interval> availability,
-            List<Interval> bookings
+            List<Interval> bookings,
+            int capacity
     ) {
 
-        List<Interval> remaining = new ArrayList<>(availability);
+        List<Interval> result = new ArrayList<>();
 
-        for (Interval booking : bookings) {
+        for (Interval available : availability) {
 
-            List<Interval> next = new ArrayList<>();
+            List<Event> events = new ArrayList<>();
 
-            for (Interval slot : remaining) {
+            for (Interval booking : bookings) {
 
-                if (!overlaps(slot, booking)) {
-                    next.add(slot);
+                if (!overlaps(available, booking)) {
                     continue;
                 }
 
-                if (booking.start.isAfter(slot.start)) {
-                    next.add(new Interval(
-                            slot.start,
-                            booking.start
-                    ));
-                }
+                LocalDateTime start = max(
+                        available.start,
+                        booking.start
+                );
 
-                if (booking.end.isBefore(slot.end)) {
-                    next.add(new Interval(
-                            booking.end,
-                            slot.end
-                    ));
+                LocalDateTime end = min(
+                        available.end,
+                        booking.end
+                );
+
+                if (start.isBefore(end)) {
+                    events.add(new Event(start, +1));
+                    events.add(new Event(end, -1));
                 }
             }
 
-            remaining = next;
+            if (events.isEmpty()) {
+                result.add(available);
+                continue;
+            }
+
+            events.sort(
+                    Comparator
+                            .comparing(Event::time)
+                            .thenComparing(Event::delta)
+            );
+
+            LocalDateTime cursor = available.start;
+            int activeBookings = 0;
+            int index = 0;
+
+            while (index < events.size()) {
+
+                LocalDateTime eventTime =
+                        events.get(index).time;
+
+                if (cursor.isBefore(eventTime)
+                        && activeBookings < capacity) {
+
+                    result.add(
+                            new Interval(
+                                    cursor,
+                                    eventTime
+                            )
+                    );
+                }
+
+                while (index < events.size()
+                        && events.get(index).time.equals(eventTime)) {
+
+                    activeBookings += events.get(index).delta;
+                    index++;
+                }
+
+                cursor = eventTime;
+            }
+
+            if (cursor.isBefore(available.end)
+                    && activeBookings < capacity) {
+
+                result.add(
+                        new Interval(
+                                cursor,
+                                available.end
+                        )
+                );
+            }
         }
 
-        return remaining;
+        // Combine adjacent availability created by booking boundaries.
+        return merge(result);
     }
 
-    private boolean overlaps(Interval a, Interval b) {
+    private boolean overlapsDay(
+            Interval interval,
+            LocalDate date
+    ) {
+
+        LocalDateTime dayStart =
+                date.atStartOfDay();
+
+        LocalDateTime dayEnd =
+                date.plusDays(1).atStartOfDay();
+
+        return interval.start.isBefore(dayEnd)
+                && interval.end.isAfter(dayStart);
+    }
+
+    private boolean overlaps(
+            Interval a,
+            Interval b
+    ) {
+
         return a.start.isBefore(b.end)
                 && b.start.isBefore(a.end);
+    }
+
+    private LocalDateTime max(
+            LocalDateTime a,
+            LocalDateTime b
+    ) {
+
+        return a.isAfter(b) ? a : b;
+    }
+
+    private LocalDateTime min(
+            LocalDateTime a,
+            LocalDateTime b
+    ) {
+
+        return a.isBefore(b) ? a : b;
     }
 
     private record Interval(
             LocalDateTime start,
             LocalDateTime end
+    ) {
+    }
+
+    private record Event(
+            LocalDateTime time,
+            int delta
     ) {
     }
 }

@@ -84,6 +84,7 @@ class AvailabilityControllerIntegrationTest {
         resource.setDescription("Meeting room");
         resource.setResourceType(ResourceType.EVENT);
         resource.setOwner(owner);
+        resource.setCapacity(1);
         return resourceRepository.save(resource);
     }
 
