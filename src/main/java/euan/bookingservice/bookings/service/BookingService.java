@@ -61,6 +61,9 @@ public class BookingService {
             Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
             userOpt.ifPresent(existingBooking::setUser);
 
+            existingBooking.setStartTime(bookingRequest.getStartTime());
+            existingBooking.setEndTime(bookingRequest.getEndTime());
+
             Booking updatedBooking = bookingRepository.save(existingBooking);
             return convertToDto(updatedBooking);
         });
@@ -80,6 +83,8 @@ public class BookingService {
         dto.setId(booking.getId());
         dto.setResourceId(booking.getResource() != null ? booking.getResource().getId() : null);
         dto.setUserId(booking.getUser() != null ? booking.getUser().getId() : null);
+        dto.setStartTime(booking.getStartTime());
+        dto.setEndTime(booking.getEndTime());
         return dto;
     }
 
@@ -99,6 +104,9 @@ public class BookingService {
         } else {
             throw new IllegalArgumentException("User with ID " + bookingRequest.getUserId() + " not found.");
         }
+
+        booking.setStartTime(bookingRequest.getStartTime());
+        booking.setEndTime(bookingRequest.getEndTime());
 
         return booking;
     }
