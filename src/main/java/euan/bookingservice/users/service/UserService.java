@@ -3,7 +3,7 @@ package euan.bookingservice.users.service;
 import euan.bookingservice.users.dto.request.UserUpdateRequest;
 import euan.bookingservice.users.dto.response.UserResponse;
 import euan.bookingservice.users.entity.User;
-import euan.bookingservice.resources.exception.ResourceNotFoundException;
+import euan.bookingservice.users.exception.UserNotFoundException;
 import euan.bookingservice.users.exception.UsernameAlreadyExistsException;
 import euan.bookingservice.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,25 +30,25 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         return convertToResponseDto(user);
     }
 
     public UserResponse getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         return convertToResponseDto(user);
     }
 
     public Long getUserIdByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(User::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
     }
 
     public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         // Check if username is being changed and if it already exists
         if (!existingUser.getUsername().equals(userUpdateRequest.getUsername()) &&
@@ -65,7 +65,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
+            throw new UserNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
     }
