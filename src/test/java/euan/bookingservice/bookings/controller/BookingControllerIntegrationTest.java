@@ -74,7 +74,7 @@ class BookingControllerIntegrationTest {
         resource.setTitle("Room A");
         resource.setDescription("Meeting room");
         resource.setResourceType(ResourceType.EVENT);
-        resource.setOwner(owner);
+        resource.setOwnerId(owner.getId());
         return resourceRepository.save(resource);
     }
 
@@ -370,7 +370,7 @@ class BookingControllerIntegrationTest {
         updatedResource.setTitle("Room B");
         updatedResource.setDescription("Updated meeting room");
         updatedResource.setResourceType(ResourceType.EVENT);
-        updatedResource.setOwner(user);
+        updatedResource.setOwnerId(user.getId());
         updatedResource = resourceRepository.save(updatedResource);
 
         Booking booking = createBooking(user, resource);

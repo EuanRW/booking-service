@@ -12,6 +12,7 @@ import euan.bookingservice.resources.entity.ResourceAvailabilityRule;
 import euan.bookingservice.resources.exception.*;
 import euan.bookingservice.resources.repository.ResourceAvailabilityRuleRepository;
 import euan.bookingservice.resources.repository.ResourceRepository;
+import euan.bookingservice.users.port.UserLookup;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,17 +29,19 @@ import java.util.List;
 public class AvailabilityService {
 
     private final ResourceAvailabilityRuleRepository availabilityRuleRepository;
+    private final UserLookup userLookup;
     private final ResourceRepository resourceRepository;
     private final BookingRepository bookingRepository;
     private final AvailabilityCalculator availabilityCalculator;
 
     public AvailabilityService(
-            ResourceAvailabilityRuleRepository availabilityRuleRepository,
+            ResourceAvailabilityRuleRepository availabilityRuleRepository, UserLookup userLookup,
             ResourceRepository resourceRepository,
             BookingRepository bookingRepository,
             AvailabilityCalculator availabilityCalculator
     ) {
         this.availabilityRuleRepository = availabilityRuleRepository;
+        this.userLookup = userLookup;
         this.resourceRepository = resourceRepository;
         this.bookingRepository = bookingRepository;
         this.availabilityCalculator = availabilityCalculator;
@@ -362,14 +365,14 @@ public class AvailabilityService {
             );
         }
 
-        if (resource.getOwner() == null ||
-                resource.getOwner().getUsername() == null ||
-                !resource.getOwner().getUsername()
-                        .equals(authentication.getName())) {
+        Long authenticatedUserId =
+                userLookup.findUserIdByUsername(authentication.getName())
+                        .orElseThrow(() ->
+                                new AccessDeniedException("Authenticated user not found")
+                        );
 
-            throw new AccessDeniedException(
-                    "You do not own this resource"
-            );
+        if (!authenticatedUserId.equals(resource.getOwnerId())) {
+            throw new AccessDeniedException("You do not own this resource");
         }
     }
 

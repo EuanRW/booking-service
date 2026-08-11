@@ -62,7 +62,7 @@ class ResourceControllerIntegrationTest {
         resource.setTitle("Room A");
         resource.setDescription("Meeting room");
         resource.setResourceType(ResourceType.EVENT);
-        resource.setOwner(owner);
+        resource.setOwnerId(owner.getId());
         return resourceRepository.save(resource);
     }
 

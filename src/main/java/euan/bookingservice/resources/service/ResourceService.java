@@ -3,9 +3,8 @@ package euan.bookingservice.resources.service;
 import euan.bookingservice.resources.dto.request.ResourceRequest;
 import euan.bookingservice.resources.dto.response.ResourceResponse;
 import euan.bookingservice.resources.entity.Resource;
-import euan.bookingservice.users.entity.User;
 import euan.bookingservice.resources.repository.ResourceRepository;
-import euan.bookingservice.users.repository.UserRepository;
+import euan.bookingservice.users.port.UserLookup;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +14,19 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceService {
     private final ResourceRepository resourceRepository;
-    private final UserRepository userRepository;
+    private final UserLookup userLookup;
 
-    public ResourceService(ResourceRepository resourceRepository, UserRepository userRepository) {
+    public ResourceService(ResourceRepository resourceRepository, UserLookup userLookup) {
         this.resourceRepository = resourceRepository;
-        this.userRepository = userRepository;
+        this.userLookup = userLookup;
     }
 
     public ResourceResponse createResource(ResourceRequest request) {
+        if (!userLookup.existsById(request.getOwnerId())) {
+            throw new IllegalArgumentException(
+                    "Owner with ID " + request.getOwnerId() + " not found."
+            );
+        }
         Resource resource = convertToEntity(request);
         Resource savedResource = resourceRepository.save(resource);
         return convertToDto(savedResource);
@@ -39,13 +43,17 @@ public class ResourceService {
     }
 
     public Optional<ResourceResponse> updateResource(Long id, ResourceRequest request) {
+        if (!userLookup.existsById(request.getOwnerId())) {
+            throw new IllegalArgumentException(
+                    "Owner with ID " + request.getOwnerId() + " not found."
+            );
+        }
+
         return resourceRepository.findById(id).map(existingResource -> {
             existingResource.setTitle(request.getTitle());
             existingResource.setDescription(request.getDescription());
             existingResource.setResourceType(request.getResourceType());
-
-            Optional<User> organizerOpt = userRepository.findById(request.getOwnerId());
-            organizerOpt.ifPresent(existingResource::setOwner);
+            existingResource.setOwnerId(request.getOwnerId());
 
             Resource updatedResource = resourceRepository.save(existingResource);
             return convertToDto(updatedResource);
@@ -65,7 +73,7 @@ public class ResourceService {
         dto.setId(resource.getId());
         dto.setTitle(resource.getTitle());
         dto.setDescription(resource.getDescription());
-        dto.setOwnerId(resource.getOwner() != null ? resource.getOwner().getId() : null);
+        dto.setOwnerId(resource.getOwnerId());
         dto.setResourceType(resource.getResourceType());
         return dto;
     }
@@ -75,13 +83,7 @@ public class ResourceService {
         resource.setTitle(request.getTitle());
         resource.setDescription(request.getDescription());
         resource.setResourceType(request.getResourceType());
-
-        Optional<User> organizerOpt = userRepository.findById(request.getOwnerId());
-        if (organizerOpt.isPresent()) {
-            resource.setOwner(organizerOpt.get());
-        } else {
-            throw new IllegalArgumentException("Organizer with ID " + request.getOwnerId() + " not found.");
-        }
+        resource.setOwnerId(request.getOwnerId());
 
         return resource;
     }

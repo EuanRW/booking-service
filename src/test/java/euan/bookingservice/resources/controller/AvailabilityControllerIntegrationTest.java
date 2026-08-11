@@ -83,7 +83,7 @@ class AvailabilityControllerIntegrationTest {
         resource.setTitle("Room A");
         resource.setDescription("Meeting room");
         resource.setResourceType(ResourceType.EVENT);
-        resource.setOwner(owner);
+        resource.setOwnerId(owner.getId());
         resource.setCapacity(1);
         return resourceRepository.save(resource);
     }

@@ -1,7 +1,6 @@
 package euan.bookingservice.resources.entity;
 
 import euan.bookingservice.common.audit.Auditable;
-import euan.bookingservice.users.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +20,8 @@ public class Resource extends Auditable {
     private String title;
     private String description;
 
-    @ManyToOne
-    private User owner;
+    @Column(name = "owner_id")
+    private Long ownerId;
 
     private Integer capacity;
 

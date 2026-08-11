@@ -46,7 +46,7 @@ public class DemoDataFactory {
 
         resource.setResourceType(ResourceType.EVENT);
         resource.setTitle(title);
-        resource.setOwner(owner);
+        resource.setOwnerId(owner.getId());
 
         return resource;
     }
