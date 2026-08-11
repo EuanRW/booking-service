@@ -1,6 +1,6 @@
 package euan.bookingservice.resources.service;
 
-import euan.bookingservice.bookings.entity.Booking;
+import euan.bookingservice.resources.model.OccupiedInterval;
 import euan.bookingservice.resources.dto.response.AvailabilityResponse;
 import euan.bookingservice.resources.dto.response.AvailabilitySlot;
 import euan.bookingservice.resources.entity.ResourceAvailabilityRule;
@@ -18,7 +18,7 @@ public class AvailabilityCalculator {
             LocalDate from,
             LocalDate to,
             List<ResourceAvailabilityRule> rules,
-            List<Booking> bookings,
+            List<OccupiedInterval> occupiedIntervals,
             Integer capacity
     ) {
 
@@ -41,14 +41,14 @@ public class AvailabilityCalculator {
 
             List<Interval> mergedRules = merge(ruleIntervals);
 
-            List<Interval> bookingIntervals = bookings.stream()
-                    .map(b -> new Interval(
-                            b.getStartTime().toLocalDateTime(),
-                            b.getEndTime().toLocalDateTime()
+            List<Interval> bookingIntervals = occupiedIntervals.stream()
+                    .map(interval -> new Interval(
+                            interval.startTime().toLocalDateTime(),
+                            interval.endTime().toLocalDateTime()
                     ))
-                    .filter(i ->
-                            overlapsDay(i, currentDate))
-                    .sorted(Comparator.comparing(i -> i.start))
+                    .filter(interval ->
+                            overlapsDay(interval, currentDate))
+                    .sorted(Comparator.comparing(interval -> interval.start))
                     .toList();
 
             List<Interval> available;

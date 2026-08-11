@@ -1,8 +1,7 @@
 package euan.bookingservice.resources.service;
 
-import euan.bookingservice.bookings.entity.Booking;
-import euan.bookingservice.bookings.entity.BookingStatus;
-import euan.bookingservice.bookings.repository.BookingRepository;
+import euan.bookingservice.resources.model.OccupiedInterval;
+import euan.bookingservice.resources.port.BookingAvailabilityLookup;
 import euan.bookingservice.resources.dto.request.AvailabilityRuleRequest;
 import euan.bookingservice.resources.dto.request.AvailabilityRuleUpdateRequest;
 import euan.bookingservice.resources.dto.response.AvailabilityResponse;
@@ -31,19 +30,20 @@ public class AvailabilityService {
     private final ResourceAvailabilityRuleRepository availabilityRuleRepository;
     private final UserLookup userLookup;
     private final ResourceRepository resourceRepository;
-    private final BookingRepository bookingRepository;
+    private final BookingAvailabilityLookup bookingAvailabilityLookup;
     private final AvailabilityCalculator availabilityCalculator;
 
     public AvailabilityService(
-            ResourceAvailabilityRuleRepository availabilityRuleRepository, UserLookup userLookup,
+            ResourceAvailabilityRuleRepository availabilityRuleRepository,
+            UserLookup userLookup,
             ResourceRepository resourceRepository,
-            BookingRepository bookingRepository,
+            BookingAvailabilityLookup bookingAvailabilityLookup,
             AvailabilityCalculator availabilityCalculator
     ) {
         this.availabilityRuleRepository = availabilityRuleRepository;
         this.userLookup = userLookup;
         this.resourceRepository = resourceRepository;
-        this.bookingRepository = bookingRepository;
+        this.bookingAvailabilityLookup = bookingAvailabilityLookup;
         this.availabilityCalculator = availabilityCalculator;
     }
 
@@ -206,20 +206,18 @@ public class AvailabilityService {
         List<ResourceAvailabilityRule> rules =
                 availabilityRuleRepository.findByResourceId(resourceId);
 
-        List<Booking> bookings =
-                bookingRepository
-                        .findByResourceIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
-                                resourceId,
-                                BookingStatus.CONFIRMED,
-                                to,
-                                from
-                        );
+        List<OccupiedInterval> occupiedIntervals =
+                bookingAvailabilityLookup.findOccupiedIntervals(
+                        resourceId,
+                        from,
+                        to
+                );
 
         return availabilityCalculator.calculate(
                 fromDate,
                 toDate,
                 rules,
-                bookings,
+                occupiedIntervals,
                 resource.getCapacity()
         );
     }

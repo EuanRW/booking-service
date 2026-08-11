@@ -1,6 +1,6 @@
 package euan.bookingservice.resources.service;
 
-import euan.bookingservice.bookings.entity.Booking;
+import euan.bookingservice.resources.model.OccupiedInterval;
 import euan.bookingservice.resources.dto.response.AvailabilityResponse;
 import euan.bookingservice.resources.dto.response.AvailabilitySlot;
 import euan.bookingservice.resources.entity.ResourceAvailabilityRule;
@@ -18,6 +18,8 @@ class AvailabilityCalculatorTest {
 
     private static final LocalDate MONDAY =
             LocalDate.of(2026, 8, 10);
+    private static final LocalDate TUESDAY =
+            LocalDate.of(2026, 8, 11);
 
     // -------------------------------------------------------------------------
     // Basic availability
@@ -90,17 +92,16 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking),
+                List.of(interval),
                 1
         );
 
@@ -123,17 +124,16 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking =
-                booking(
-                        MONDAY.atTime(9, 0),
-                        MONDAY.atTime(17, 0)
-                );
+        OccupiedInterval interval = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(9, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(17, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking),
+                List.of(interval),
                 1
         );
 
@@ -150,17 +150,16 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1),
+                List.of(interval),
                 2
         );
 
@@ -179,23 +178,21 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval1 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking2 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval2 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1, booking2),
+                List.of(interval1, interval2),
                 2
         );
 
@@ -218,17 +215,15 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(14, 0)
-                );
+        OccupiedInterval interval1 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(14, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking2 =
-                booking(
-                        MONDAY.atTime(11, 0),
-                        MONDAY.atTime(13, 0)
-                );
+        OccupiedInterval interval2 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(11, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(13, 0), ZoneOffset.UTC)
+        );
 
         /*
          * Capacity = 1
@@ -243,7 +238,7 @@ class AvailabilityCalculatorTest {
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1, booking2),
+                List.of(interval1, interval2),
                 1
         );
 
@@ -266,23 +261,20 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(14, 0)
-                );
+        OccupiedInterval interval1 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(14, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking2 =
-                booking(
-                        MONDAY.atTime(11, 0),
-                        MONDAY.atTime(13, 0)
-                );
+        OccupiedInterval interval2 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(11, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(13, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking3 =
-                booking(
-                        MONDAY.atTime(12, 0),
-                        MONDAY.atTime(15, 0)
-                );
+        OccupiedInterval interval3 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(15, 0), ZoneOffset.UTC)
+        );
 
         /*
          * Capacity = 3
@@ -299,7 +291,7 @@ class AvailabilityCalculatorTest {
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1, booking2, booking3),
+                List.of(interval1, interval2, interval3),
                 3
         );
 
@@ -326,23 +318,21 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(10, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval1 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(10, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking2 =
-                booking(
-                        MONDAY.atTime(12, 0),
-                        MONDAY.atTime(14, 0)
-                );
+        OccupiedInterval interval2 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(14, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1, booking2),
+                List.of(interval1, interval2),
                 1
         );
 
@@ -365,17 +355,16 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking =
-                booking(
-                        MONDAY.atTime(18, 0),
-                        MONDAY.atTime(20, 0)
-                );
+        OccupiedInterval interval = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(18, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(20, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking),
+                List.of(interval),
                 1
         );
 
@@ -533,17 +522,16 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.TUESDAY, "00:00", "08:00");
 
-        Booking booking =
-                booking(
-                        MONDAY.atTime(23, 0),
-                        tuesday.atTime(2, 0)
-                );
+        OccupiedInterval interval = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(23, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(TUESDAY.atTime(2, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 tuesday,
                 tuesday,
                 List.of(rule),
-                List.of(booking),
+                List.of(interval),
                 1
         );
 
@@ -562,23 +550,21 @@ class AvailabilityCalculatorTest {
         ResourceAvailabilityRule rule =
                 rule(DayOfWeek.MONDAY, "09:00", "17:00");
 
-        Booking booking1 =
-                booking(
-                        MONDAY.atTime(9, 0),
-                        MONDAY.atTime(12, 0)
-                );
+        OccupiedInterval interval1 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(9, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC)
+        );
 
-        Booking booking2 =
-                booking(
-                        MONDAY.atTime(12, 0),
-                        MONDAY.atTime(17, 0)
-                );
+        OccupiedInterval interval2 = new OccupiedInterval(
+                OffsetDateTime.of(MONDAY.atTime(12, 0), ZoneOffset.UTC),
+                OffsetDateTime.of(MONDAY.atTime(17, 0), ZoneOffset.UTC)
+        );
 
         AvailabilityResponse result = calculator.calculate(
                 MONDAY,
                 MONDAY,
                 List.of(rule),
-                List.of(booking1, booking2),
+                List.of(interval1, interval2),
                 1
         );
 
@@ -606,26 +592,11 @@ class AvailabilityCalculatorTest {
         return rule;
     }
 
-    private Booking booking(
+    private OccupiedInterval interval(
             LocalDateTime start,
             LocalDateTime end
     ) {
-
-        Booking booking = new Booking();
-
-        /*
-         * Adjust these setters if your Booking entity uses
-         * different property names/types.
-         */
-        booking.setStartTime(
-                start.atOffset(ZoneOffset.UTC)
-        );
-
-        booking.setEndTime(
-                end.atOffset(ZoneOffset.UTC)
-        );
-
-        return booking;
+        return new OccupiedInterval(start.atOffset(ZoneOffset.UTC), end.atOffset(ZoneOffset.UTC));
     }
 
     private AvailabilitySlot slot(
