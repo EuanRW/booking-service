@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class UserLookupImpl implements UserLookup {
+public class UserLookupAdapter implements UserLookup {
 
     private final UserRepository userRepository;
 
-    public UserLookupImpl(UserRepository userRepository) {
+    public UserLookupAdapter(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

@@ -222,6 +222,102 @@ public class AvailabilityService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public boolean isAvailable(
+            Long resourceId,
+            OffsetDateTime startTime,
+            OffsetDateTime endTime
+    ) {
+        Resource resource = getResource(resourceId);
+
+        if (startTime == null || endTime == null) {
+            throw new InvalidAvailabilityRuleException(
+                    "Start time and end time are required"
+            );
+        }
+
+        if (!startTime.isBefore(endTime)) {
+            throw new InvalidAvailabilityRuleException(
+                    "Start time must be before end time"
+            );
+        }
+
+        List<ResourceAvailabilityRule> rules =
+                availabilityRuleRepository.findByResourceId(resourceId);
+
+        List<OccupiedInterval> occupiedIntervals =
+                bookingAvailabilityLookup.findOccupiedIntervals(
+                        resourceId,
+                        startTime,
+                        endTime
+                );
+
+        AvailabilityResponse availability =
+                availabilityCalculator.calculate(
+                        startTime.toLocalDate(),
+                        endTime.toLocalDate(),
+                        rules,
+                        occupiedIntervals,
+                        resource.getCapacity()
+                );
+
+        return availability.getSlots()
+                .stream()
+                .anyMatch(slot ->
+                        !startTime.isBefore(slot.getStartTime())
+                                && !endTime.isAfter(slot.getEndTime())
+                );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isAvailableExcludingBooking(
+            Long resourceId,
+            OffsetDateTime startTime,
+            OffsetDateTime endTime,
+            Long bookingId
+    ) {
+        Resource resource = getResource(resourceId);
+
+        if (startTime == null || endTime == null) {
+            throw new InvalidAvailabilityRuleException(
+                    "Start time and end time are required"
+            );
+        }
+
+        if (!startTime.isBefore(endTime)) {
+            throw new InvalidAvailabilityRuleException(
+                    "Start time must be before end time"
+            );
+        }
+
+        List<ResourceAvailabilityRule> rules =
+                availabilityRuleRepository.findByResourceId(resourceId);
+
+        List<OccupiedInterval> occupiedIntervals =
+                bookingAvailabilityLookup.findOccupiedIntervalsExcludingBooking(
+                        resourceId,
+                        startTime,
+                        endTime,
+                        bookingId
+                );
+
+        AvailabilityResponse availability =
+                availabilityCalculator.calculate(
+                        startTime.toLocalDate(),
+                        endTime.toLocalDate(),
+                        rules,
+                        occupiedIntervals,
+                        resource.getCapacity()
+                );
+
+        return availability.getSlots()
+                .stream()
+                .anyMatch(slot ->
+                        !startTime.isBefore(slot.getStartTime())
+                                && !endTime.isAfter(slot.getEndTime())
+                );
+    }
+
     private Resource getResource(Long resourceId) {
         return resourceRepository.findById(resourceId)
                 .orElseThrow(() ->

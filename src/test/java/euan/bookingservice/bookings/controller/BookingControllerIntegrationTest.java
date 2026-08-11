@@ -4,7 +4,9 @@ import euan.bookingservice.bookings.entity.Booking;
 import euan.bookingservice.bookings.entity.BookingStatus;
 import euan.bookingservice.bookings.repository.BookingRepository;
 import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.resources.entity.ResourceAvailabilityRule;
 import euan.bookingservice.resources.entity.ResourceType;
+import euan.bookingservice.resources.repository.ResourceAvailabilityRuleRepository;
 import euan.bookingservice.resources.repository.ResourceRepository;
 import euan.bookingservice.users.entity.User;
 import euan.bookingservice.users.repository.UserRepository;
@@ -21,6 +23,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +46,9 @@ class BookingControllerIntegrationTest {
 
     @Autowired
     private ResourceRepository resourceRepository;
+
+    @Autowired
+    private ResourceAvailabilityRuleRepository resourceAvailabilityRuleRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -78,6 +85,16 @@ class BookingControllerIntegrationTest {
         return resourceRepository.save(resource);
     }
 
+    private void createAvailabilityRule(Resource resource) {
+        ResourceAvailabilityRule rule = new ResourceAvailabilityRule();
+        rule.setResource(resource);
+        rule.setStartTime(LocalTime.of(9, 0));
+        rule.setEndTime(LocalTime.of(17, 0));
+        rule.setDayOfWeek(DayOfWeek.FRIDAY);
+
+        resourceAvailabilityRuleRepository.save(rule);
+    }
+
     private Booking createBooking(User user, Resource resource) {
         Booking booking = new Booking();
         booking.setUser(user);
@@ -112,13 +129,14 @@ class BookingControllerIntegrationTest {
 
         User user = createUser();
         Resource resource = createResource(user);
+        createAvailabilityRule(resource);
 
         String payload = """
             {
               "resourceId":%d,
               "userId":%d,
-              "startTime":"2026-08-15T10:00:00+01:00",
-              "endTime":"2026-08-15T12:00:00+01:00"
+              "startTime":"2026-08-14T10:00:00+01:00",
+              "endTime":"2026-08-14T12:00:00+01:00"
             }
             """.formatted(resource.getId(), user.getId());
 
@@ -164,13 +182,14 @@ class BookingControllerIntegrationTest {
         User user = createUser();
         User anotherUser = createAnotherUser();
         Resource resource = createResource(user);
+        createAvailabilityRule(resource);
 
         String payload = """
                 {
                   "resourceId":%d,
                   "userId":%d,
-                  "startTime":"2026-08-15T10:00:00+01:00",
-                  "endTime":"2026-08-15T12:00:00+01:00"
+                  "startTime":"2026-08-14T10:00:00+01:00",
+                  "endTime":"2026-08-14T12:00:00+01:00"
                 }
                 """.formatted(resource.getId(), anotherUser.getId());
 
@@ -366,12 +385,15 @@ class BookingControllerIntegrationTest {
         User user = createUser();
 
         Resource resource = createResource(user);
+        createAvailabilityRule(resource);
+
         Resource updatedResource = new Resource();
         updatedResource.setTitle("Room B");
         updatedResource.setDescription("Updated meeting room");
         updatedResource.setResourceType(ResourceType.EVENT);
         updatedResource.setOwnerId(user.getId());
         updatedResource = resourceRepository.save(updatedResource);
+        createAvailabilityRule(updatedResource);
 
         Booking booking = createBooking(user, resource);
 
@@ -379,8 +401,8 @@ class BookingControllerIntegrationTest {
                 {
                   "resourceId":%d,
                   "userId":%d,
-                  "startTime":"2026-08-15T10:00:00+01:00",
-                  "endTime":"2026-08-15T12:00:00+01:00"
+                  "startTime":"2026-08-14T10:00:00+01:00",
+                  "endTime":"2026-08-14T12:00:00+01:00"
                 }
                 """.formatted(updatedResource.getId(), user.getId());
 
@@ -461,14 +483,16 @@ class BookingControllerIntegrationTest {
 
         Resource resource = createResource(user);
 
+        createAvailabilityRule(resource);
+
         Booking booking = createBooking(user, resource);
 
         String payload = """
                  {
                   "resourceId":%d,
                   "userId":%d,
-                  "startTime":"2026-08-15T10:00:00+01:00",
-                  "endTime":"2026-08-15T12:00:00+01:00"
+                  "startTime":"2026-08-14T10:00:00+01:00",
+                  "endTime":"2026-08-14T12:00:00+01:00"
                 }
                 """.formatted(resource.getId(), anotherUser.getId());
 

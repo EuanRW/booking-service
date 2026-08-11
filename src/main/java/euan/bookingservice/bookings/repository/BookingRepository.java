@@ -13,11 +13,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByUserId(Long userId);
 
-    List<Booking> findByResourceId(Long resourceId);
-
     List<Booking> findByResourceIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
             Long resourceId,
             BookingStatus status,
+            OffsetDateTime end,
+            OffsetDateTime start
+    );
+
+    List<Booking>
+    findByResourceIdAndStatusAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+            Long resourceId,
+            BookingStatus status,
+            Long bookingId,
             OffsetDateTime end,
             OffsetDateTime start
     );

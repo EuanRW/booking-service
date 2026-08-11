@@ -12,4 +12,11 @@ public interface BookingAvailabilityLookup {
             OffsetDateTime from,
             OffsetDateTime to
     );
+
+    List<OccupiedInterval> findOccupiedIntervalsExcludingBooking(
+            Long resourceId,
+            OffsetDateTime from,
+            OffsetDateTime to,
+            Long bookingId
+    );
 }

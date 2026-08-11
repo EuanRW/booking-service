@@ -1,5 +1,7 @@
 package euan.bookingservice.common.exception;
 
+import euan.bookingservice.bookings.exception.BookingOutsideAvailabilityException;
+import euan.bookingservice.bookings.exception.InvalidBookingException;
 import euan.bookingservice.resources.exception.*;
 import euan.bookingservice.users.exception.UserNotFoundException;
 import euan.bookingservice.users.exception.UsernameAlreadyExistsException;
@@ -16,6 +18,32 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidBookingException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidBooking(
+            InvalidBookingException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BookingOutsideAvailabilityException.class)
+    public ResponseEntity<ErrorResponse> handleBookingOutsideAvailability(
+            BookingOutsideAvailabilityException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 
     @ExceptionHandler(ResourceOwnerNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceOwnerNotFoundException(

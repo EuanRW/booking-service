@@ -4,6 +4,9 @@ import euan.bookingservice.bookings.dto.request.BookingRequest;
 import euan.bookingservice.bookings.dto.response.BookingResponse;
 import euan.bookingservice.bookings.entity.Booking;
 import euan.bookingservice.bookings.entity.BookingStatus;
+import euan.bookingservice.bookings.exception.BookingOutsideAvailabilityException;
+import euan.bookingservice.bookings.exception.InvalidBookingException;
+import euan.bookingservice.bookings.port.ResourceAvailabilityLookup;
 import euan.bookingservice.bookings.port.ResourceLookup;
 import euan.bookingservice.resources.exception.ResourceNotFoundException;
 import euan.bookingservice.users.entity.User;
@@ -11,6 +14,7 @@ import euan.bookingservice.bookings.repository.BookingRepository;
 import euan.bookingservice.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,20 +22,25 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final ResourceLookup resourceLookup;;
+    private final ResourceLookup resourceLookup;
+    private final ResourceAvailabilityLookup resourceAvailabilityLookup;
     private final UserRepository userRepository;
 
     public BookingService(BookingRepository bookingRepository,
-                          ResourceLookup resourceLookup,
+                          ResourceLookup resourceLookup, ResourceAvailabilityLookup resourceAvailabilityLookup,
                           UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.resourceLookup = resourceLookup;
+        this.resourceAvailabilityLookup = resourceAvailabilityLookup;
         this.userRepository = userRepository;
     }
 
     public BookingResponse createBooking(BookingRequest bookingRequest) {
+        validateBooking(bookingRequest, null);
+
         Booking booking = convertToEntity(bookingRequest);
         booking.setStatus(BookingStatus.CONFIRMED);
+
         Booking savedBooking = bookingRepository.save(booking);
         return convertToDto(savedBooking);
     }
@@ -56,14 +65,10 @@ public class BookingService {
     }
 
     public Optional<BookingResponse> updateBooking(Long id, BookingRequest bookingRequest) {
+        validateBooking(bookingRequest, id);
+
         return bookingRepository.findById(id).map(existingBooking -> {
             Long resourceId = bookingRequest.getResourceId();
-
-            if (!resourceLookup.existsById(resourceId)) {
-                throw new ResourceNotFoundException(
-                        "Resource with ID " + resourceId + " not found."
-                );
-            }
 
             existingBooking.setResourceId(resourceId);
 
@@ -100,6 +105,33 @@ public class BookingService {
     private Booking convertToEntity(BookingRequest bookingRequest) {
         Booking booking = new Booking();
 
+        Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
+        if (userOpt.isPresent()) {
+            booking.setUser(userOpt.get());
+        } else {
+            throw new IllegalArgumentException("User with ID " + bookingRequest.getUserId() + " not found.");
+        }
+
+        booking.setResourceId(bookingRequest.getResourceId());
+        booking.setStartTime(bookingRequest.getStartTime());
+        booking.setEndTime(bookingRequest.getEndTime());
+
+        return booking;
+    }
+
+    private void validateBooking(
+            BookingRequest bookingRequest,
+            Long excludedBookingId
+    ) {
+        OffsetDateTime startTime = bookingRequest.getStartTime();
+        OffsetDateTime endTime = bookingRequest.getEndTime();
+
+        if (!startTime.isBefore(endTime)) {
+            throw new InvalidBookingException(
+                    "Booking start time must be before end time."
+            );
+        }
+
         Long resourceId = bookingRequest.getResourceId();
 
         if (!resourceLookup.existsById(resourceId)) {
@@ -108,18 +140,27 @@ public class BookingService {
             );
         }
 
-        booking.setResourceId(resourceId);
+        boolean available;
 
-        Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
-        if (userOpt.isPresent()) {
-            booking.setUser(userOpt.get());
+        if (excludedBookingId == null) {
+            available = resourceAvailabilityLookup.isAvailable(
+                    bookingRequest.getResourceId(),
+                    startTime,
+                    endTime
+            );
         } else {
-            throw new IllegalArgumentException("User with ID " + bookingRequest.getUserId() + " not found.");
+            available = resourceAvailabilityLookup.isAvailableExcludingBooking(
+                    bookingRequest.getResourceId(),
+                    startTime,
+                    endTime,
+                    excludedBookingId
+            );
         }
 
-        booking.setStartTime(bookingRequest.getStartTime());
-        booking.setEndTime(bookingRequest.getEndTime());
-
-        return booking;
+        if (!available) {
+            throw new BookingOutsideAvailabilityException(
+                    "Resource is not available for the requested booking period."
+            );
+        }
     }
 }

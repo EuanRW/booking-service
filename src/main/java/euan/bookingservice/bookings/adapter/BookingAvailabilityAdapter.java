@@ -40,4 +40,27 @@ public class BookingAvailabilityAdapter implements BookingAvailabilityLookup {
                 ))
                 .toList();
     }
+
+    @Override
+    public List<OccupiedInterval> findOccupiedIntervalsExcludingBooking(
+            Long resourceId,
+            OffsetDateTime from,
+            OffsetDateTime to,
+            Long bookingId
+    ) {
+        return bookingRepository
+                .findByResourceIdAndStatusAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+                        resourceId,
+                        BookingStatus.CONFIRMED,
+                        bookingId,
+                        to,
+                        from
+                )
+                .stream()
+                .map(booking -> new OccupiedInterval(
+                        booking.getStartTime(),
+                        booking.getEndTime()
+                ))
+                .toList();
+    }
 }
