@@ -5,7 +5,7 @@ import euan.bookingservice.resources.dto.response.ResourceResponse;
 import euan.bookingservice.resources.entity.Resource;
 import euan.bookingservice.resources.exception.ResourceOwnerNotFoundException;
 import euan.bookingservice.resources.repository.ResourceRepository;
-import euan.bookingservice.users.port.UserLookup;
+import euan.bookingservice.resources.port.UserLookup;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

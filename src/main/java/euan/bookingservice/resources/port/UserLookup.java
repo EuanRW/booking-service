@@ -1,4 +1,4 @@
-package euan.bookingservice.users.port;
+package euan.bookingservice.resources.port;
 
 import java.util.Optional;
 

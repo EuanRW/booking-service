@@ -11,7 +11,7 @@ import euan.bookingservice.resources.entity.ResourceAvailabilityRule;
 import euan.bookingservice.resources.exception.*;
 import euan.bookingservice.resources.repository.ResourceAvailabilityRuleRepository;
 import euan.bookingservice.resources.repository.ResourceRepository;
-import euan.bookingservice.users.port.UserLookup;
+import euan.bookingservice.resources.port.UserLookup;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

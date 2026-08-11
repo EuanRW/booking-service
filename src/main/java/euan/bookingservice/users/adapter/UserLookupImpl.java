@@ -1,7 +1,7 @@
 package euan.bookingservice.users.adapter;
 
 import euan.bookingservice.users.entity.User;
-import euan.bookingservice.users.port.UserLookup;
+import euan.bookingservice.resources.port.UserLookup;
 import euan.bookingservice.users.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
