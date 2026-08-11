@@ -155,6 +155,27 @@ class ResourceControllerIntegrationTest {
     }
 
     @Test
+    void createResource_whenOwnerDoesNotExist_returnsNotFound() throws Exception {
+
+        Long missingOwnerId = 999L;
+
+        String payload = """
+            {
+              "title":"Room A",
+              "description":"Meeting room",
+              "resourceType":"ROOM",
+              "ownerId":%d
+            }
+            """.formatted(missingOwnerId);
+
+        mockMvc.perform(post("/resources")
+                        .with(SecurityMockMvcRequestPostProcessors.user("organizer").roles("ORGANIZER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getAllResources_asUser_returnsResources() throws Exception {
 
         User owner = createOwner();
@@ -280,6 +301,30 @@ class ResourceControllerIntegrationTest {
 
         mockMvc.perform(put("/resources/999")
                         .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateResource_whenOwnerDoesNotExist_returnsNotFound() throws Exception {
+
+        User owner = createOwner();
+        Resource resource = createResource(owner);
+
+        Long missingOwnerId = 999L;
+
+        String payload = """
+            {
+              "title":"Updated Room",
+              "description":"Updated description",
+              "resourceType":"ROOM",
+              "ownerId":%d
+            }
+            """.formatted(missingOwnerId);
+
+        mockMvc.perform(put("/resources/" + resource.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.user("organizer").roles("ORGANIZER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isNotFound());

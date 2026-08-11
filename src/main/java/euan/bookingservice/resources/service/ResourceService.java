@@ -3,6 +3,7 @@ package euan.bookingservice.resources.service;
 import euan.bookingservice.resources.dto.request.ResourceRequest;
 import euan.bookingservice.resources.dto.response.ResourceResponse;
 import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.resources.exception.ResourceOwnerNotFoundException;
 import euan.bookingservice.resources.repository.ResourceRepository;
 import euan.bookingservice.users.port.UserLookup;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ResourceService {
 
     public ResourceResponse createResource(ResourceRequest request) {
         if (!userLookup.existsById(request.getOwnerId())) {
-            throw new IllegalArgumentException(
+            throw new ResourceOwnerNotFoundException(
                     "Owner with ID " + request.getOwnerId() + " not found."
             );
         }
@@ -44,7 +45,7 @@ public class ResourceService {
 
     public Optional<ResourceResponse> updateResource(Long id, ResourceRequest request) {
         if (!userLookup.existsById(request.getOwnerId())) {
-            throw new IllegalArgumentException(
+            throw new ResourceOwnerNotFoundException(
                     "Owner with ID " + request.getOwnerId() + " not found."
             );
         }
