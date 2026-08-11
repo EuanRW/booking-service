@@ -81,7 +81,7 @@ class BookingControllerIntegrationTest {
     private Booking createBooking(User user, Resource resource) {
         Booking booking = new Booking();
         booking.setUser(user);
-        booking.setResource(resource);
+        booking.setResourceId(resource.getId());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setStartTime(OffsetDateTime.now());
         booking.setEndTime(OffsetDateTime.now().plusHours(1));
@@ -395,7 +395,7 @@ class BookingControllerIntegrationTest {
 
         Booking updatedBooking = bookingRepository.findById(booking.getId()).orElseThrow();
 
-        assertThat(updatedBooking.getResource().getId()).isEqualTo(updatedResource.getId());
+        assertThat(updatedBooking.getResourceId()).isEqualTo(updatedResource.getId());
         assertThat(updatedBooking.getUser().getId()).isEqualTo(user.getId());
     }
 

@@ -4,10 +4,10 @@ import euan.bookingservice.bookings.dto.request.BookingRequest;
 import euan.bookingservice.bookings.dto.response.BookingResponse;
 import euan.bookingservice.bookings.entity.Booking;
 import euan.bookingservice.bookings.entity.BookingStatus;
-import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.bookings.port.ResourceLookup;
+import euan.bookingservice.resources.exception.ResourceNotFoundException;
 import euan.bookingservice.users.entity.User;
 import euan.bookingservice.bookings.repository.BookingRepository;
-import euan.bookingservice.resources.repository.ResourceRepository;
 import euan.bookingservice.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,14 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final ResourceRepository resourceRepository;
+    private final ResourceLookup resourceLookup;;
     private final UserRepository userRepository;
 
-    public BookingService(BookingRepository bookingRepository, ResourceRepository resourceRepository, UserRepository userRepository) {
+    public BookingService(BookingRepository bookingRepository,
+                          ResourceLookup resourceLookup,
+                          UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
-        this.resourceRepository = resourceRepository;
+        this.resourceLookup = resourceLookup;
         this.userRepository = userRepository;
     }
 
@@ -55,8 +57,15 @@ public class BookingService {
 
     public Optional<BookingResponse> updateBooking(Long id, BookingRequest bookingRequest) {
         return bookingRepository.findById(id).map(existingBooking -> {
-            Optional<Resource> resourceOpt = resourceRepository.findById(bookingRequest.getResourceId());
-            resourceOpt.ifPresent(existingBooking::setResource);
+            Long resourceId = bookingRequest.getResourceId();
+
+            if (!resourceLookup.existsById(resourceId)) {
+                throw new ResourceNotFoundException(
+                        "Resource with ID " + resourceId + " not found."
+                );
+            }
+
+            existingBooking.setResourceId(resourceId);
 
             Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
             userOpt.ifPresent(existingBooking::setUser);
@@ -81,7 +90,7 @@ public class BookingService {
     private BookingResponse convertToDto(Booking booking) {
         BookingResponse dto = new BookingResponse();
         dto.setId(booking.getId());
-        dto.setResourceId(booking.getResource() != null ? booking.getResource().getId() : null);
+        dto.setResourceId(booking.getResourceId());
         dto.setUserId(booking.getUser() != null ? booking.getUser().getId() : null);
         dto.setStartTime(booking.getStartTime());
         dto.setEndTime(booking.getEndTime());
@@ -91,12 +100,15 @@ public class BookingService {
     private Booking convertToEntity(BookingRequest bookingRequest) {
         Booking booking = new Booking();
 
-        Optional<Resource> resourceOpt = resourceRepository.findById(bookingRequest.getResourceId());
-        if (resourceOpt.isPresent()) {
-            booking.setResource(resourceOpt.get());
-        } else {
-            throw new IllegalArgumentException("Resource with ID " + bookingRequest.getResourceId() + " not found.");
+        Long resourceId = bookingRequest.getResourceId();
+
+        if (!resourceLookup.existsById(resourceId)) {
+            throw new ResourceNotFoundException(
+                    "Resource with ID " + resourceId + " not found."
+            );
         }
+
+        booking.setResourceId(resourceId);
 
         Optional<User> userOpt = userRepository.findById(bookingRequest.getUserId());
         if (userOpt.isPresent()) {

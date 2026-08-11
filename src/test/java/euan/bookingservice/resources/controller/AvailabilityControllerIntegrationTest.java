@@ -109,7 +109,7 @@ class AvailabilityControllerIntegrationTest {
             String end
     ) {
         Booking booking = new Booking();
-        booking.setResource(resource);
+        booking.setResourceId(resource.getId());
         booking.setUser(createBookingUser());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setStartTime(
@@ -817,7 +817,7 @@ class AvailabilityControllerIntegrationTest {
         );
 
         Booking booking = new Booking();
-        booking.setResource(resource);
+        booking.setResourceId(resource.getId());
         booking.setUser(createBookingUser());
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStartTime(

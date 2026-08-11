@@ -67,7 +67,7 @@ public class DemoDataFactory {
         Booking booking = new Booking();
 
         booking.setUser(user);
-        booking.setResource(resource);
+        booking.setResourceId(resource.getId());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setStartTime(OffsetDateTime.now());
         booking.setEndTime(OffsetDateTime.now().plusHours(1));
