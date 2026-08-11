@@ -7,11 +7,29 @@ Generic Java booking system with a modular architecture.
 The long-term goal is to keep modules independent while allowing them to collaborate through well-defined service interfaces.
 
 ```
-booking-system/ 
-├── authentication 
-├── users 
-├── bookings 
-└── resources
+booking-system/
+├── authentication  # Authentication, authorization, and security
+├── bookings        # Booking-related features and business logic
+├── common          # Shared utilities, components, and configuration
+├── resources       # Resource/availability-related features
+├── seed            # Initial/test data seeding
+└── users           # User management and profiles
+```
+
+Each module uses the same sub-structure:
+
+```
+{module}/
+├── adapter      # Integrations with external systems/services
+├── controller   # REST/API endpoints and request handling
+├── dto          # Request/response data transfer objects
+├── entity       # Domain/database entities
+├── exception    # Custom exceptions and error handling
+├── mapper       # Converts between entities, DTOs, and models
+├── port         # Interfaces defining application boundaries/contracts
+├── repository   # Data access and persistence interfaces
+├── service      # Business logic and application services
+└── validator    # Input and business-rule validation
 ```
 
 ## Tech stack
