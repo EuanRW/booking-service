@@ -18,7 +18,7 @@ public class DemoDataFactory {
     public User admin() {
         User user = new User();
 
-        user.setUsername("admin");
+        user.setUsername("admin@admin.com");
 
         // Encode before saving
         user.setPassword("password");

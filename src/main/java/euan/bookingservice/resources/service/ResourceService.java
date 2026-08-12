@@ -55,6 +55,7 @@ public class ResourceService {
             existingResource.setDescription(request.getDescription());
             existingResource.setResourceType(request.getResourceType());
             existingResource.setOwnerId(request.getOwnerId());
+            existingResource.setCapacity(request.getCapacity());
 
             Resource updatedResource = resourceRepository.save(existingResource);
             return convertToDto(updatedResource);
@@ -76,6 +77,7 @@ public class ResourceService {
         dto.setDescription(resource.getDescription());
         dto.setOwnerId(resource.getOwnerId());
         dto.setResourceType(resource.getResourceType());
+        dto.setCapacity(resource.getCapacity());
         return dto;
     }
 
@@ -85,6 +87,7 @@ public class ResourceService {
         resource.setDescription(request.getDescription());
         resource.setResourceType(request.getResourceType());
         resource.setOwnerId(request.getOwnerId());
+        resource.setCapacity(request.getCapacity());
 
         return resource;
     }

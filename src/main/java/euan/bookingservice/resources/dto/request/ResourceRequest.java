@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class ResourceRequest {
     @NotBlank(message = "Title is required")
@@ -17,7 +15,7 @@ public class ResourceRequest {
     @NotNull(message = "Owner is required")
     private Long ownerId;
 
-    private LocalDateTime scheduledTime;
+    private Integer capacity;
 
     @NotNull(message = "Resource type is required")
     private ResourceType resourceType;
