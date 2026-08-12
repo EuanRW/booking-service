@@ -64,6 +64,12 @@ Add a .env with a `JWT_SECRET` env var generated with:
   openssl rand -base64 64
 ```
 
+Add this to your .env:
+
+```bash
+  CORS_ALLOWED_ORIGIN=http://localhost:5173
+```
+
 Run the supporting services (Postgres, PGAdmin etc):
 
 ```shell
