@@ -32,6 +32,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ResourceHasBookingsException.class)
+    public ResponseEntity<ErrorResponse> handleResourceHasBookingsException(
+            ResourceHasBookingsException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(BookingOutsideAvailabilityException.class)
     public ResponseEntity<ErrorResponse> handleBookingOutsideAvailability(
             BookingOutsideAvailabilityException ex

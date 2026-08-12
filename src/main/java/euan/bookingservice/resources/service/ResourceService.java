@@ -3,7 +3,9 @@ package euan.bookingservice.resources.service;
 import euan.bookingservice.resources.dto.request.ResourceRequest;
 import euan.bookingservice.resources.dto.response.ResourceResponse;
 import euan.bookingservice.resources.entity.Resource;
+import euan.bookingservice.resources.exception.ResourceHasBookingsException;
 import euan.bookingservice.resources.exception.ResourceOwnerNotFoundException;
+import euan.bookingservice.resources.port.BookingLookup;
 import euan.bookingservice.resources.repository.ResourceRepository;
 import euan.bookingservice.resources.port.UserLookup;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,12 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceService {
     private final ResourceRepository resourceRepository;
+    private final BookingLookup bookingLookup;
     private final UserLookup userLookup;
 
-    public ResourceService(ResourceRepository resourceRepository, UserLookup userLookup) {
+    public ResourceService(ResourceRepository resourceRepository, BookingLookup bookingLookup, UserLookup userLookup) {
         this.resourceRepository = resourceRepository;
+        this.bookingLookup = bookingLookup;
         this.userLookup = userLookup;
     }
 
@@ -63,11 +67,18 @@ public class ResourceService {
     }
 
     public boolean deleteResource(Long id) {
-        if (resourceRepository.existsById(id)) {
-            resourceRepository.deleteById(id);
-            return true;
+        if (!resourceRepository.existsById(id)) {
+            return false;
         }
-        return false;
+
+        if (bookingLookup.existsByResourceId(id)) {
+            throw new ResourceHasBookingsException(
+                    "Resource with ID " + id + " cannot be deleted because bookings exist."
+            );
+        }
+
+        resourceRepository.deleteById(id);
+        return true;
     }
 
     private ResourceResponse convertToDto(Resource resource) {

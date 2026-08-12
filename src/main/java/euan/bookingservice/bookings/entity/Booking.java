@@ -1,7 +1,6 @@
 package euan.bookingservice.bookings.entity;
 
 import euan.bookingservice.common.audit.Auditable;
-import euan.bookingservice.resources.entity.Resource;
 import euan.bookingservice.users.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;

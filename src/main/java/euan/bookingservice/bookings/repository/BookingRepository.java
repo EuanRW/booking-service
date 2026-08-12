@@ -28,4 +28,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             OffsetDateTime end,
             OffsetDateTime start
     );
+
+    boolean existsByResourceId(Long resourceId);
 }
