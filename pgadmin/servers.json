@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Booking Service PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres-container",
+      "Port": 5432,
+      "MaintenanceDB": "booking_service",
+      "Username": "admin",
+      "SSLMode": "prefer"
+    }
+  }
+}
