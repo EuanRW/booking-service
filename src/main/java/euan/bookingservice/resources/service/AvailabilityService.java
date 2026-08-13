@@ -57,12 +57,6 @@ public class AvailabilityService {
 
         validateRule(request.getStartTime(), request.getEndTime());
 
-        if (!resourceId.equals(request.getResourceId())) {
-            throw new InvalidAvailabilityRuleException(
-                    "Resource ID in request does not match path resource ID"
-            );
-        }
-
         List<ResourceAvailabilityRule> existingRules =
                 availabilityRuleRepository.findByResourceIdAndDayOfWeek(
                         resourceId,

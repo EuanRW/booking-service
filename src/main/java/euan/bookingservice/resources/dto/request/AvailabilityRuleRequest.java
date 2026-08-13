@@ -12,9 +12,6 @@ import java.time.LocalTime;
 @Setter
 public class AvailabilityRuleRequest {
 
-    @NotNull(message = "Resource ID is required")
-    private Long resourceId;
-
     @NotNull(message = "Day of week is required")
     private DayOfWeek dayOfWeek;
 
