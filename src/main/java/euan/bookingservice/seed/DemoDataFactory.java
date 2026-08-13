@@ -71,6 +71,7 @@ public class DemoDataFactory {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setStartTime(OffsetDateTime.now());
         booking.setEndTime(OffsetDateTime.now().plusHours(1));
+        booking.setStatus(BookingStatus.CONFIRMED);
 
         return booking;
     }
