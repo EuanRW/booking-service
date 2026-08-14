@@ -1,34 +1,40 @@
 package euan.bookingservice.authentication.service;
 
-import euan.bookingservice.users.entity.User;
-import euan.bookingservice.users.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import euan.bookingservice.authentication.model.AuthenticationUser;
+import euan.bookingservice.authentication.port.AuthenticationUserPort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthenticationUserPort authenticationUserPort;
+
+    public CustomUserDetailsService(
+            AuthenticationUserPort authenticationUserPort
+    ) {
+        this.authenticationUserPort = authenticationUserPort;
+    }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        // Create authority with ROLE_ prefix which is required by Spring Security
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
+    public UserDetails loadUserByUsername(String username) {
+        AuthenticationUser user = authenticationUserPort
+                .findByUsername(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "User not found: " + username
+                        )
+                );
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .authorities(Collections.singleton(authority))  // Use authorities instead of roles
+                .withUsername(user.username())
+                .password(user.encodedPassword())
+                .authorities(
+                        new SimpleGrantedAuthority("ROLE_" + user.role())
+                )
                 .build();
     }
 }

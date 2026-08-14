@@ -74,7 +74,7 @@ public class AuthControllerIntegrationTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
 
